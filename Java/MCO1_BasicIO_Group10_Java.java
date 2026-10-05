@@ -31,7 +31,7 @@ public class MCO1_BasicIO_Group10_Java {
         System.out.println("Choice = " + choice);
 
         // Register Account Name
-        System.out.println("Register Account Name");
+        System.out.println("\nRegister Account Name");
         System.out.print("Account Name: ");
         String name = sc.nextLine();
 
@@ -39,7 +39,7 @@ public class MCO1_BasicIO_Group10_Java {
         System.out.println("Account Name = " + name);
 
         //Deposit Amount
-        System.out.println("Deposit Amount");
+        System.out.println("\nDeposit Amount");
         System.out.print("Account Name: ");
         String depositAcct = sc.nextLine();
 
@@ -55,7 +55,7 @@ public class MCO1_BasicIO_Group10_Java {
         System.out.printf("Deposit Amount = %.2f\n", deposit);
 
         //Withdraw Amount
-        System.out.println("Withdraw Amount");
+        System.out.println("\nWithdraw Amount");
         System.out.print("Account Name: ");
         String withdrawAcct = sc.nextLine();
 
@@ -71,7 +71,7 @@ public class MCO1_BasicIO_Group10_Java {
         System.out.printf("Withdraw Amount = %.2f\n", withdraw);
 
         //Foreign Currency Exchange
-        System.out.println("Foreign Currency Exchange");
+        System.out.println("\nForeign Currency Exchange");
         System.out.print("Source Amount (PHP): ");
         double amount = sc.nextDouble();
         sc.nextLine();
@@ -90,7 +90,7 @@ public class MCO1_BasicIO_Group10_Java {
         System.out.printf("\nSource Amount (PHP) = %.2f", amount);
 
         //Record Currency Exchange
-        System.out.println("Record Exchange Rate");
+        System.out.println("\nRecord Exchange Rate");
         System.out.println();
         System.out.println("[1] Philippine Peso (PHP)");
         System.out.println("[2] United States Dollar (USD)");
