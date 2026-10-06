@@ -2,7 +2,7 @@
 ********************
 Last names: Chan, Cheng, Jugno, Lim
 Language: Kotlin
-Paradigm(s): 
+Paradigm(s): Functional 
 ********************
  */
 
