@@ -4,7 +4,7 @@ int main()
 {
     int choice = 0, currency = 0;
     char name[100];
-    double amount = 0.0, rate = 0.0, source = 0.0;
+    double amount = 0.0, rate = 0.0, input = 0.0;
     char *currencies[6] = {
         "Philippine Peso (PHP)",
         "United States Dollar (USD)",
@@ -55,18 +55,18 @@ int main()
     printf("Withdraw Amount = %.2f\n\n", amount);
 
     printf("Foreign Currency Exchange\n");
-    printf("Source Amount (PHP): ");
-    scanf("%lf", &source);
+    printf("input Amount (PHP): ");
+    scanf("%lf", &input);
     printf("\nExchanged Currency\n");
-    printf("[1] Philippine Peso (PHP) = %.2f\n", source);
-    printf("[2] United States Dollar (USD) = %.2f\n", source * 62.00);
-    printf("[3] Japanese Yen (JPY) = %.2f\n", source * 0.40);
-    printf("[4] British Pound Sterling (GBP) = %.2f\n", source * 84.00);
-    printf("[5] Euro (EUR) = %.2f\n", source * 72.00);
-    printf("[6] Chinese Yuan Renminni (CNY) = %.2f\n", source * 9.00);
+    printf("[1] Philippine Peso (PHP) = %.2f\n", input);
+    printf("[2] United States Dollar (USD) = %.2f\n", input * 62.00);
+    printf("[3] Japanese Yen (JPY) = %.2f\n", input * 0.40);
+    printf("[4] British Pound Sterling (GBP) = %.2f\n", input * 84.00);
+    printf("[5] Euro (EUR) = %.2f\n", input * 72.00);
+    printf("[6] Chinese Yuan Renminni (CNY) = %.2f\n", input * 9.00);
     printf("\n***\n");
-    printf("Source Currency = Philippine Peso (PHP)\n");
-    printf("Source Amount (PHP) = %.2f\n\n", source);
+    printf("input Currency = Philippine Peso (PHP)\n");
+    printf("input Amount (PHP) = %.2f\n\n", input);
 
     printf("Record Exchange Rate\n\n");
     printf("[1] Philippine Peso (PHP)\n");
