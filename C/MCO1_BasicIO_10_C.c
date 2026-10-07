@@ -1,3 +1,11 @@
+/*
+********************
+Last names: Chan, Cheng, Jugno, Lim
+Language: C
+Paradigm(s): Functional 
+********************
+ */
+ 
 #include <stdio.h>
 
 int main()
