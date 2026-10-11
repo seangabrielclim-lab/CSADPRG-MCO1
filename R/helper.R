@@ -7,7 +7,7 @@ check_user <- function(name, users){
     return (FALSE)
 }
 
-get_user_index <- function(name, user){
+get_user_index <- function(name, users){
     currentIndex <- 1
     for (user in users){
         if (tolower(name) == tolower(user)){

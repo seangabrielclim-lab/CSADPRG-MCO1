@@ -11,6 +11,7 @@ on.exit(close(input))
 isRunning <- TRUE
 currentBalance <- 1000.00
 currentCurrency <- "PHP"
+defaultRate <- 0.05
 
 users <- c()
 userCount <- 0
@@ -22,7 +23,7 @@ currencyIndex <- 2
 exchangeRates <- c(1.0, 62.0, 0.4, 84.0, 72.0, 9.0) # default values
 
 while (isRunning){
-    cat("Select Transaction:\n")
+    cat("\nSelect Transaction:\n")
     cat("[1] Register Account Name\n")
     cat("[2] Deposit Amount\n")
     cat("[3] Withdraw Amount\n")
@@ -57,6 +58,8 @@ while (isRunning){
         userCount <- userCount + 1
         users[userCount] <- name
         bankStatus[[userCount]] <- list(0.0, "PHP") # Setting default acc balance to 0 and default currency to PHP
+    } else if (length(users) == 0) {
+        cat("No users Found!, Please Register a User First!\n\n")
     } else if (mainChoice == 2){
         isValid <- FALSE
         while (!isValid){
@@ -194,7 +197,7 @@ while (isRunning){
             cat("Select Foreign Currency: ")
             chosen_currency <- as.integer(readLines(input, n = 1))
 
-            if (chosen_currency < 1 || chosen_currency > 6){
+            if (is.na(chosen_currency) || chosen_currency < 1 || chosen_currency > 6){
                 cat("Invalid Choice, Please Try Again!\n")
             } else {
                 while (!isValid){
@@ -212,7 +215,47 @@ while (isRunning){
         exchangeRates[[chosen_currency]] <- rate
         
     } else if (mainChoice == 6){
-        
+        cat("Show Interest Amount\n")
+        isValid <- FALSE
+
+        while (!isValid){
+            cat("Account Name: ")
+            name <- readLines(input, n = 1)
+
+            if (nchar(name) == 0){
+                cat("Name cannot be empty, Please Try Again!\n\n")
+            } else if (!check_user(name, users)){
+                cat("Account does not exist, Please Try Again!\n\n")
+            } else {
+                isValid <- TRUE
+            }
+        }
+        index <- get_user_index(name, users)
+        currentBalance <- bankStatus[[index]][[balIndex]]
+        currentCurrency <- bankStatus[[index]][[currencyIndex]]
+        cat("Current Balance:", sprintf("%.2f", currentBalance), "\n")
+        cat("Current Currency:", currentCurrency, "\n")
+        cat("Interest Rate:", sprintf("%.2f", defaultRate * 100), " %\n\n")
+
+        isValid <- FALSE
+        while (!isValid){
+            cat("Total Number of Days: ")
+            numDays <- as.integer(readLines(input, n = 1))
+
+            if (is.na(numDays) || numDays < 1){
+                cat("Invalid Number of Days, Please Try Again!")
+            } else {
+                isValid <- TRUE
+            }
+        }
+        cat("Day | Interest | Balance |\n")
+        newBal <- currentBalance
+        for (i in 1:numDays){
+            interest <- newBal * (defaultRate / 365)
+            newBal <- newBal + interest
+            cat(sprintf("%-3d | %-8.2f | %.2f |\n", i, round(interest, digits = 2), round(newBal, digits = 2)))
+        }
+
     } else if (mainChoice == 7){
         isRunning <- FALSE
     } else {
