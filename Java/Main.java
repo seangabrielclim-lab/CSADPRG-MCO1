@@ -9,7 +9,7 @@ public class Main {
         int choice;
 
         UserDB userDB = new UserDB();
-        HashMap<Integer, Double> Currencies = new HashMap();
+        HashMap<Integer, Double> Currencies = new HashMap<>();
         Currencies.put(1, 1.00); //php
         Currencies.put(2, 62.00); //usd
         Currencies.put(3, 0.40); //jpy
@@ -177,7 +177,7 @@ public class Main {
                     }
                     break;
             }
-            System.out.println("Back to the Main Menu (Y/N): ");
+            System.out.print("Back to the Main Menu (Y/N): ");
             String back = sc.nextLine();
             if(back.equalsIgnoreCase("N")) {
                 exited = true;

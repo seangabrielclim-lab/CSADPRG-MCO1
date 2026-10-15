@@ -23,7 +23,7 @@ currencyIndex <- 2
 exchangeRates <- c(1.0, 62.0, 0.4, 84.0, 72.0, 9.0) # default values
 
 while (isRunning){
-    cat("\nSelect Transaction:\n")
+    cat("Select Transaction:\n")
     cat("[1] Register Account Name\n")
     cat("[2] Deposit Amount\n")
     cat("[3] Withdraw Amount\n")
@@ -39,6 +39,7 @@ while (isRunning){
     } else {
         mainChoice <- -1
     }
+    cat("\n")
 
     if (mainChoice == 1){
         isValid <- FALSE
@@ -79,8 +80,8 @@ while (isRunning){
         currentBalance <- bankStatus[[index]][[balIndex]]
         currentCurrency <- bankStatus[[index]][[currencyIndex]]
 
-        cat("Current Balance:", sprintf("%.2f", currentBalance), "\n")
-        cat("Currency:", currentCurrency, "\n\n")
+        cat("\nCurrent Balance:", sprintf("%.2f", currentBalance), "\n")
+        cat("Currency:", currentCurrency, "\n")
 
         isValid <- FALSE
         while (!isValid){
@@ -253,7 +254,7 @@ while (isRunning){
         for (i in 1:numDays){
             interest <- newBal * (defaultRate / 365)
             newBal <- newBal + interest
-            cat(sprintf("%-3d | %-8.2f | %.2f |\n", i, round(interest, digits = 2), round(newBal, digits = 2)))
+            cat(sprintf("%-3d | %-8.2f | %-10.2f |\n", i, interest, newBal))
         }
 
     } else if (mainChoice == 7){
@@ -261,4 +262,18 @@ while (isRunning){
     } else {
         cat("Invalid Input, Try Again!\n\n")
     }
+    exited <- FALSE
+    while (!exited){
+        cat("Back to the Main Menu (Y/N): ")
+        exitInput <- as.character(readLines(input, n = 1))
+
+        if (tolower(exitInput) == 'y'){
+            exited <- TRUE
+        } else if (tolower(exitInput) == 'n'){
+            cat("...\n")
+        } else {
+            cat("Invalid Input, Please Try Again!\n")
+        }
+    }
+
 }
