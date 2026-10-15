@@ -41,7 +41,9 @@ while (isRunning){
     }
     cat("\n")
 
-    if (mainChoice == 1){
+    if (mainChoice == 7){
+        isRunning <- FALSE
+    } else if (mainChoice == 1){
         isValid <- FALSE
         while (!isValid){
             cat("Register Account Name\n")
@@ -136,54 +138,74 @@ while (isRunning){
         cat("Updated Balance:", sprintf("%.2f", bankStatus[[index]][[balIndex]]), "\n")
 
     } else if (mainChoice == 4){
-        cat("Foreign Currency Exchange\n")
-        cat("Source Currency Options:\n")
-        cat("[1] Philippine Peso (PHP)\n")
-        cat("[2] United States Dollar (USD)\n")
-        cat("[3] Japanese Yen (JPY)\n")
-        cat("[4] British Pound Sterling (GBP)\n")
-        cat("[5] Euro (EUR)\n")
-        cat("[6] Chinese Yuan Renminni (CNY)\n\n")
-        isValid <- FALSE
-        while (!isValid){
-            cat("Source Currency: ")
-            srcCurr <- as.integer(readLines(input, n = 1))
+        isRepeating <- TRUE
 
-            if (is.na(srcCurr) || srcCurr < 1 || srcCurr > 6){
-                cat("Invalid Choice, Please Try Again!\n")
-            } else {
-                while (!isValid){
-                    cat("Source Amount: ")
-                    srcAmt <- as.numeric(readLines(input, n = 1))
-                    if (is.na(srcAmt) || srcAmt < 0){
-                        cat("Invalid Amount, Please Try Again!\n")
-                    } else {
-                        isValid <- TRUE
+        while (isRepeating){
+            cat("Foreign Currency Exchange\n")
+            cat("Source Currency Options:\n")
+            cat("[1] Philippine Peso (PHP)\n")
+            cat("[2] United States Dollar (USD)\n")
+            cat("[3] Japanese Yen (JPY)\n")
+            cat("[4] British Pound Sterling (GBP)\n")
+            cat("[5] Euro (EUR)\n")
+            cat("[6] Chinese Yuan Renminni (CNY)\n\n")
+            isValid <- FALSE
+            while (!isValid){
+                cat("Source Currency: ")
+                srcCurr <- as.integer(readLines(input, n = 1))
+
+                if (is.na(srcCurr) || srcCurr < 1 || srcCurr > 6){
+                    cat("Invalid Choice, Please Try Again!\n")
+                } else {
+                    while (!isValid){
+                        cat("Source Amount: ")
+                        srcAmt <- as.numeric(readLines(input, n = 1))
+                        if (is.na(srcAmt) || srcAmt < 0){
+                            cat("Invalid Amount, Please Try Again!\n")
+                        } else {
+                            isValid <- TRUE
+                        }
                     }
                 }
             }
-        }
 
-        cat("Exchanged Currency Options:\n")
-        cat("[1] Philippine Peso (PHP)\n")
-        cat("[2] United States Dollar (USD)\n")
-        cat("[3] Japanese Yen (JPY)\n")
-        cat("[4] British Pound Sterling (GBP)\n")
-        cat("[5] Euro (EUR)\n")
-        cat("[6] Chinese Yuan Renminni (CNY)\n\n")
-        isValid <- FALSE
-        while (!isValid){
-            cat("Exchange Currency: ")
-            exCurr <- as.integer(readLines(input, n = 1))
+            cat("Exchanged Currency Options:\n")
+            cat("[1] Philippine Peso (PHP)\n")
+            cat("[2] United States Dollar (USD)\n")
+            cat("[3] Japanese Yen (JPY)\n")
+            cat("[4] British Pound Sterling (GBP)\n")
+            cat("[5] Euro (EUR)\n")
+            cat("[6] Chinese Yuan Renminni (CNY)\n\n")
+            isValid <- FALSE
+            while (!isValid){
+                cat("Exchange Currency: ")
+                exCurr <- as.integer(readLines(input, n = 1))
 
-            if (is.na(exCurr) || exCurr < 1 || exCurr > 6){
-                cat("Invalid Choice, Please Try Again!\n")
-            } else {
-                isValid <- TRUE
+                if (is.na(exCurr) || exCurr < 1 || exCurr > 6){
+                    cat("Invalid Choice, Please Try Again!\n")
+                } else {
+                    isValid <- TRUE
+                }
             }
-        }
-        exchangedAmount <- srcAmt * exchangeRates[[srcCurr]] / exchangeRates[[exCurr]]
-        cat("Exchanged Amount:", sprintf("%.2f", exchangedAmount), "\n")
+            exchangedAmount <- srcAmt * exchangeRates[[srcCurr]] / exchangeRates[[exCurr]]
+            cat("Exchange Amount:", sprintf("%.2f", exchangedAmount), "\n")
+
+            isValid <- FALSE
+            while (!isValid){
+                cat("\nConvert another currency (Y/N)? . . . ")
+                willRepeat <- as.character(readLines(input, n = 1))
+                if (tolower(willRepeat) == 'n'){
+                    isRepeating <- FALSE
+                    isValid <- TRUE
+                } else if (tolower(willRepeat) == 'y'){
+                    cat("\n")
+                    isValid <- TRUE
+                } else{
+                    cat("Invalid Input, Please Try Again!")
+                }
+            }
+        } 
+
     } else if (mainChoice == 5){
         cat("Record Exchange Rate\n\n")
         cat("[1] Philippine Peso (PHP)\n")
@@ -198,7 +220,11 @@ while (isRunning){
             cat("Select Foreign Currency: ")
             chosen_currency <- as.integer(readLines(input, n = 1))
 
-            if (is.na(chosen_currency) || chosen_currency < 1 || chosen_currency > 6){
+            if (is.na(chosen_currency)){
+                cat("Please Input an Integer!\n")
+            } else if (chosen_currency == 1){
+                cat("Cannot Modify base currency, Please Choose Again!\n")
+            } else if (chosen_currency < 2 || chosen_currency > 6){
                 cat("Invalid Choice, Please Try Again!\n")
             } else {
                 while (!isValid){
@@ -236,7 +262,7 @@ while (isRunning){
         currentCurrency <- bankStatus[[index]][[currencyIndex]]
         cat("Current Balance:", sprintf("%.2f", currentBalance), "\n")
         cat("Current Currency:", currentCurrency, "\n")
-        cat("Interest Rate:", sprintf("%.2f", defaultRate * 100), " %\n\n")
+        cat("Interest Rate: 5%\n\n")
 
         isValid <- FALSE
         while (!isValid){
@@ -256,14 +282,11 @@ while (isRunning){
             newBal <- newBal + interest
             cat(sprintf("%-3d | %-8.2f | %-10.2f |\n", i, interest, newBal))
         }
-
-    } else if (mainChoice == 7){
-        isRunning <- FALSE
     } else {
         cat("Invalid Input, Try Again!\n\n")
     }
     exited <- FALSE
-    while (!exited){
+    while (!exited && isRunning){
         cat("Back to the Main Menu (Y/N): ")
         exitInput <- as.character(readLines(input, n = 1))
 
