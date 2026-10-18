@@ -59,82 +59,83 @@ public class Main {
                     case 2:
                         boolean done2 = false;
                         while (!done2) {
-                            System.out.println("Deposit Amount");
-                            System.out.print("Account Name: ");
-                            String depositAcct = sc.nextLine();
-
-                            try {
-                                User d = userDB.findUserByName(depositAcct);
-                                if (userDB.getUsers().isEmpty()) {
-                                    System.out.println("\n*** Error Invalid Input ***\n");
-                                    done2 = true;
-                                } else if(d == null) {
-                                    System.out.println("\n*** Error Invalid Input ***\n");
-                                } else {
-                                    System.out.printf("\nCurrent Balance: %.2f\n", d.getAmount());
-                                    System.out.println("Currency: " + d.getCurrency());
-                                    System.out.print("Deposit Amount: ");
-                                    double deposit = sc.nextDouble();
-                                    if (!(deposit > 0) || Double.isInfinite(deposit)) {
-                                        throw new IllegalArgumentException("*** Error Invalid Input ***");
-                                    }
-                                    sc.nextLine();
-                                    boolean depSuccess = userDB.depositFunds(d, deposit);
-                                    if (depSuccess) {
-                                        System.out.println("\n***");
-                                        System.out.println("Account Name = " + d.getName());
-                                        System.out.printf("Deposit Amount = %.2f\n", deposit);
-                                        done2 = true;
-                                    } else {
-                                        System.out.println("\n*** Error Invalid Input ***\n");
-                                    }
-                                }
-                            } catch (InputMismatchException | IllegalArgumentException e) {
+                            if(userDB.getUsers().isEmpty()){
                                 System.out.println("\n*** Error Invalid Input ***\n");
-                                sc.nextLine();
+                                done2 = true;
+                            }
+                            else{
+                                System.out.println("Deposit Amount");
+                                System.out.print("Account Name: ");
+                                String depositAcct = sc.nextLine();
+
+                                try {
+                                    User d = userDB.findUserByName(depositAcct);
+                                    if(d == null) {
+                                        System.out.println("\n*** Error Invalid Input ***\n");
+                                    } else {
+                                        System.out.printf("Current Balance: %.2f\n", d.getAmount());
+                                        System.out.println("Currency: " + d.getCurrency());
+                                        System.out.print("\nDeposit Amount: ");
+                                        double deposit = sc.nextDouble();
+                                        if (!(deposit > 0) || Double.isInfinite(deposit)) {
+                                            throw new IllegalArgumentException("*** Error Invalid Input ***");
+                                        }
+                                        sc.nextLine();
+                                        boolean depSuccess = userDB.depositFunds(d, deposit);
+                                        if (depSuccess) {
+                                            System.out.printf("Updated Balance: %.2f\n\n", d.getAmount());
+                                            done2 = true;
+                                        } else {
+                                            System.out.println("\n*** Error Invalid Input ***\n");
+                                        }
+                                    }
+                                } catch (InputMismatchException | IllegalArgumentException e) {
+                                    System.out.println("\n*** Error Invalid Input ***\n");
+                                    sc.nextLine();
+                                }
                             }
                         }
                         break;
                     case 3:
                         boolean done3 = false;
                         while (!done3) {
-                            System.out.println("Withdraw Amount");
-                            System.out.print("Account Name: ");
-                            String withdrawAcct = sc.nextLine();
-
-                            try {
-                                User w = userDB.findUserByName(withdrawAcct);
-                                if (userDB.getUsers().isEmpty()) {
-                                    System.out.println("\n*** Error Invalid Input ***\n");
-                                    done3 = true;
-                                }
-                                else if (w == null) {
-                                    System.out.println("\n*** Error Invalid Input ***\n");
-                                } else {
-                                    System.out.printf("\nCurrent Balance: %.2f\n", w.getAmount());
-                                    System.out.println("Currency: " + w.getCurrency());
-                                    System.out.print("Withdraw Amount: ");
-                                    double withdraw = sc.nextDouble();
-                                    if (!(withdraw > 0) || Double.isInfinite(withdraw)) {
-                                        throw new IllegalArgumentException("*** Error Invalid Input ***");
-                                    }
-                                    if (w.getAmount() < withdraw) {
-                                        throw new IllegalArgumentException("*** Error Invalid Input ***");
-                                    }
-                                    sc.nextLine();
-                                    boolean withSuccess = userDB.withdrawFunds(w, withdraw);
-                                    if (withSuccess) {
-                                        System.out.println("\n***");
-                                        System.out.println("Account Name = " + w.getName());
-                                        System.out.printf("Withdraw Amount = %.2f\n", withdraw);
-                                        done3 = true;
-                                    } else {
-                                        System.out.println("\n*** Error Invalid Input ***\n");
-                                    }
-                                }
-                            } catch (InputMismatchException | IllegalArgumentException e) {
+                            if (userDB.getUsers().isEmpty()) {
                                 System.out.println("\n*** Error Invalid Input ***\n");
-                                sc.nextLine();
+                                done3 = true;
+                            }
+                            else{
+                                System.out.println("Withdraw Amount");
+                                System.out.print("Account Name: ");
+                                String withdrawAcct = sc.nextLine();
+
+                                try {
+                                    User w = userDB.findUserByName(withdrawAcct);
+                                    if (w == null) {
+                                        System.out.println("\n*** Error Invalid Input ***\n");
+                                    } else {
+                                        System.out.printf("Current Balance: %.2f\n", w.getAmount());
+                                        System.out.println("Currency: " + w.getCurrency());
+                                        System.out.print("\nWithdraw Amount: ");
+                                        double withdraw = sc.nextDouble();
+                                        if (!(withdraw > 0) || Double.isInfinite(withdraw)) {
+                                            throw new IllegalArgumentException("*** Error Invalid Input ***");
+                                        }
+                                        if (w.getAmount() < withdraw) {
+                                            throw new IllegalArgumentException("*** Error Invalid Input ***");
+                                        }
+                                        sc.nextLine();
+                                        boolean withSuccess = userDB.withdrawFunds(w, withdraw);
+                                        if (withSuccess) {
+                                            System.out.printf("Updated Amount: %.2f\n\n", w.getAmount());
+                                            done3 = true;
+                                        } else {
+                                            System.out.println("\n*** Error Invalid Input ***\n");
+                                        }
+                                    }
+                                } catch (InputMismatchException | IllegalArgumentException e) {
+                                    System.out.println("\n*** Error Invalid Input ***\n");
+                                    sc.nextLine();
+                                }
                             }
                         }
                         break;
@@ -183,7 +184,10 @@ public class Main {
                                     double ecAmount = sourceAmount / Currencies.get(ecOption);
                                     System.out.printf("Exchange Amount: %.2f\n", ecAmount);
                                     sc.nextLine();
-                                    done4 = true;
+                                    System.out.println("\nConvert another currency (Y/N)?... ");
+                                    if (sc.nextLine().equalsIgnoreCase("N")) {
+                                        done4 = true;
+                                    }
                                 }
                             } catch (InputMismatchException | IllegalArgumentException e) {
                                 System.out.println("\n*** Error Invalid Input ***\n");
@@ -242,44 +246,52 @@ public class Main {
                         break;
                     case 6:
                         boolean done6 = false;
+                        System.out.println("Show Interest Amount");
                         while (!done6) {
-                            System.out.println("Show Interest Amount");
-                            System.out.print("Account Name: ");
-                            String acctName = sc.nextLine();
-
-                            User interestAcct = userDB.findUserByName(acctName);
                             if (userDB.getUsers().isEmpty()) {
                                 System.out.println("\n*** Error Invalid Input ***\n");
                                 done6 = true;
                             }
-                            else if (interestAcct == null) {
-                                System.out.println("\n*** Error Invalid Input ***\n");
-                            } else {
-                                System.out.println("Current Balance: " + interestAcct.getAmount());
-                                System.out.println("Currency: " + interestAcct.getCurrency());
-                                System.out.println("Interest Rate: 5%");
-                                System.out.println();
-                                System.out.print("Total Number of Days:");
-                                try {
-                                    int days = sc.nextInt();
-                                    if (days > 0 && days <= 3650) {
-                                        sc.nextLine();
-                                        double interestRate = 1 + interestAcct.getRate();
-                                        double[] amounts = new double[days];
-                                        userDB.interestFunds(interestAcct, days, interestRate, amounts);
-                                        System.out.println("Day | Interest | Balance |");
-                                        for (int i = 0; i < days; i++) {
-                                            System.out.printf("%-3d | %-8.2f | %.2f |\n", i + 1, interestRate,
-                                                    amounts[i]);
-                                        }
-                                        done6 = true;
-                                    } else {
-                                        throw new IllegalArgumentException("*** Error Invalid Input ***");
-                                    }
-                                    System.out.println();
-                                } catch (InputMismatchException | IllegalArgumentException e) {
+                            else{
+                                System.out.print("Account Name: ");
+                                String acctName = sc.nextLine();
+
+                                User interestAcct = userDB.findUserByName(acctName);
+                                if (interestAcct == null) {
                                     System.out.println("\n*** Error Invalid Input ***\n");
-                                    sc.nextLine();
+                                } else {
+                                    System.out.printf("Current Balance: %.2f\n", interestAcct.getAmount());
+                                    System.out.println("Currency: " + interestAcct.getCurrency());
+                                    System.out.println("Interest Rate: 5%");
+                                    System.out.println();
+                                    boolean validDays = false;
+                                    while (!validDays) {
+                                        System.out.print("Total Number of Days:");
+                                        try {
+                                            int days = sc.nextInt();
+                                            if (days > 0 && days <= 3650) {
+                                                sc.nextLine();
+                                                validDays = true;
+                                                double interestRate = interestAcct.getRate();
+                                                double[] amounts = new double[days];
+                                                userDB.interestFunds(interestAcct, days, interestRate, amounts);
+                                                double prev = interestAcct.getAmount();
+                                                System.out.println("Day | Interest | Balance |");
+                                                for (int i = 0; i < days; i++) {
+                                                    double interest = amounts[i] - prev;
+                                                    System.out.printf("%-3d | %-8.2f | %.2f |\n", i + 1, interest, amounts[i]);
+                                                    prev = amounts[i];
+                                                }
+                                                done6 = true;
+                                            } else {
+                                                throw new IllegalArgumentException("*** Error Invalid Input ***");
+                                            }
+                                            System.out.println();
+                                        } catch (InputMismatchException | IllegalArgumentException e) {
+                                            System.out.println("\n*** Error Invalid Input ***\n");
+                                            sc.nextLine();
+                                        }
+                                    }
                                 }
                             }
                         }

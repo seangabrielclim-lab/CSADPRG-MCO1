@@ -66,7 +66,7 @@ public class UserDB {
             double currentAmount = user.getAmount();
             double interestRate =  rate/365.0;
             for(int i = 0; i < days; i++){
-                double interest = currentAmount*interestRate;
+                double interest = Math.round(currentAmount * interestRate * 100) / 100.0;
                 currentAmount += interest;
                 amounts[i] = currentAmount;
             }
