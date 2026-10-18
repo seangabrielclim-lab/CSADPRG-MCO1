@@ -50,10 +50,8 @@ while (isRunning){
             cat("Account Name: ")
             name <- readLines(input, n = 1)
 
-            if (nchar(name) == 0){
-                cat("Name cannot be empty, Please Try Again!\n\n")
-            } else if (check_user(name, users)){
-                cat("Account name already exists, Please use a different one!\n\n")
+            if (nchar(name) == 0 || check_user(name, users)){
+                cat("*** Error Invalid Input ***\n\n")
             } else{
                 isValid <- TRUE
             }
@@ -62,7 +60,7 @@ while (isRunning){
         users[userCount] <- name
         bankStatus[[userCount]] <- list(0.0, "PHP") # Setting default acc balance to 0 and default currency to PHP
     } else if (length(users) == 0) {
-        cat("No users Found!, Please Register a User First!\n\n")
+        cat("*** Error Invalid Input ***\n\n")
     } else if (mainChoice == 2){
         isValid <- FALSE
         while (!isValid){
@@ -70,10 +68,8 @@ while (isRunning){
             cat("Account Name: ")
             name <- readLines(input, n = 1)
 
-            if (nchar(name) == 0){
-                cat("Name cannot be empty, Please Try Again!\n\n")
-            } else if (!check_user(name, users)){
-                cat("Account does not exist, Please Try Again!\n\n")
+            if (nchar(name) == 0 || !check_user(name, users)){
+                cat("*** Error Invalid Input ***\n\n")
             } else {
                 isValid <- TRUE
             }
@@ -90,7 +86,7 @@ while (isRunning){
             cat("Deposit Amount: ")
             depAmount <- as.numeric(readLines(input, n = 1))
             if (depAmount < 0){
-                cat("Deposit amount cannot be negative, Please Try Again!\n\n")
+                cat("*** Error Invalid Input ***\n\n")
             } else {
                 isValid <- TRUE
             }
@@ -106,10 +102,8 @@ while (isRunning){
             cat("Account Name: ")
             name <- readLines(input, n = 1)
 
-            if (nchar(name) == 0){
-                cat("Name cannot be empty, Please Try Again!\n\n")
-            } else if (!check_user(name, users)){
-                cat("Account does not exist, Please Try Again!\n\n")
+            if (nchar(name) == 0 || !check_user(name, users)){
+                cat("*** Error Invalid Input ***\n\n")
             } else {
                 isValid <- TRUE
             }
@@ -126,10 +120,8 @@ while (isRunning){
         while (!isValid){
             cat("Withdraw Amount: ")
             withAmount <- as.numeric(readLines(input, n = 1))
-            if (withAmount < 0){
-                cat("Withdraw amount cannot be negative, Please Try Again!\n\n")
-            } else if (withAmount > currentBalance){
-                cat("Insufficient Balance, Please Try Again!\n\n")
+            if (withAmount < 0 || (withAmount > currentBalance)){
+                cat("*** Error Invalid Input ***\n\n")
             } else {
                 isValid <- TRUE
             }
@@ -155,13 +147,13 @@ while (isRunning){
                 srcCurr <- as.integer(readLines(input, n = 1))
 
                 if (is.na(srcCurr) || srcCurr < 1 || srcCurr > 6){
-                    cat("Invalid Choice, Please Try Again!\n")
+                    cat("*** Error Invalid Input ***\n")
                 } else {
                     while (!isValid){
                         cat("Source Amount: ")
                         srcAmt <- as.numeric(readLines(input, n = 1))
                         if (is.na(srcAmt) || srcAmt < 0){
-                            cat("Invalid Amount, Please Try Again!\n")
+                            cat("*** Error Invalid Input ***\n")
                         } else {
                             isValid <- TRUE
                         }
@@ -182,7 +174,7 @@ while (isRunning){
                 exCurr <- as.integer(readLines(input, n = 1))
 
                 if (is.na(exCurr) || exCurr < 1 || exCurr > 6){
-                    cat("Invalid Choice, Please Try Again!\n")
+                    cat("*** Error Invalid Input ***\n")
                 } else {
                     isValid <- TRUE
                 }
@@ -201,7 +193,7 @@ while (isRunning){
                     cat("\n")
                     isValid <- TRUE
                 } else{
-                    cat("Invalid Input, Please Try Again!")
+                    cat("*** Error Invalid Input ***")
                 }
             }
         } 
@@ -220,12 +212,8 @@ while (isRunning){
             cat("Select Foreign Currency: ")
             chosen_currency <- as.integer(readLines(input, n = 1))
 
-            if (is.na(chosen_currency)){
-                cat("Please Input an Integer!\n")
-            } else if (chosen_currency == 1){
-                cat("Cannot Modify base currency, Please Choose Again!\n")
-            } else if (chosen_currency < 2 || chosen_currency > 6){
-                cat("Invalid Choice, Please Try Again!\n")
+            if (is.na(chosen_currency) || (chosen_currency == 1) || (chosen_currency < 2 || chosen_currency > 6)){
+                cat("*** Error Invalid Input ***\n")
             } else {
                 while (!isValid){
                     cat("Exchange Rate: ")
@@ -249,10 +237,8 @@ while (isRunning){
             cat("Account Name: ")
             name <- readLines(input, n = 1)
 
-            if (nchar(name) == 0){
-                cat("Name cannot be empty, Please Try Again!\n\n")
-            } else if (!check_user(name, users)){
-                cat("Account does not exist, Please Try Again!\n\n")
+            if (nchar(name) == 0 || !check_user(name, users)){
+                cat("*** Error Invalid Input ***\n\n")
             } else {
                 isValid <- TRUE
             }
@@ -270,7 +256,7 @@ while (isRunning){
             numDays <- as.integer(readLines(input, n = 1))
 
             if (is.na(numDays) || numDays < 1){
-                cat("Invalid Number of Days, Please Try Again!")
+                cat("*** Error Invalid Input ***\n\n")
             } else {
                 isValid <- TRUE
             }
@@ -295,7 +281,7 @@ while (isRunning){
         } else if (tolower(exitInput) == 'n'){
             cat("...\n")
         } else {
-            cat("Invalid Input, Please Try Again!\n")
+            cat("*** Error Invalid Input ***\n")
         }
     }
 
