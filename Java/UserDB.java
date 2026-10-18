@@ -58,17 +58,16 @@ public class UserDB {
         }
     }
 
-    public boolean interestFunds(User user, int days, double interest, double[] amounts){
+    public boolean interestFunds(User user, int days, double rate, double[] amounts){
         if(days < 0){
             return false;
         }
         else{
             double currentAmount = user.getAmount();
-            double rate = user.getRate();
-            interest = currentAmount * (rate/365);
-
+            double interestRate =  rate/365.0;
             for(int i = 0; i < days; i++){
-                currentAmount = currentAmount + interest;
+                double interest = currentAmount*interestRate;
+                currentAmount += interest;
                 amounts[i] = currentAmount;
             }
             return true;
