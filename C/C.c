@@ -6,6 +6,7 @@ Language: C
 */
 
 #include <stdio.h>
+#include <string.h>
 
 #define MAX_NAME      100
 #define MAX_LINE      256
@@ -40,6 +41,7 @@ void clearInput(void)
     while ((charac = getchar()) != '\n' && charac != EOF)
         ;
 }
+
 
 int readChoice(const char *msg, int min, int max)
 {
@@ -148,15 +150,22 @@ double readAmountInCurrency(const char *label)
     return inPHP;
 }
 
-
-
 void registerAccount(Account *acc)
 {
+    char newName[MAX_NAME];
+
     printf("Register Account Name\n");
     printf("Account Name: ");
-    scanf(" %99[^\n]", acc->name);
+    scanf(" %99[^\n]", newName);
     clearInput();
 
+    if (acc->registered && strcmp(newName, acc->name) == 0) {
+        printf("An account with this name is already registered.\n");
+        return;
+    }
+
+    strcpy(acc->name, newName);
+    acc->balance = 0.00;
     acc->registered = 1;
 }
 
@@ -249,7 +258,6 @@ void showInterest(Account *acc)
 
     days = readChoice("Total Number of Days: ", 1, 36500);
 
-    /* Projection only: the account balance itself is not changed. */
     balance = acc->balance;
     printf("\nDay | Interest | Balance |\n");
     for (day = 1; day <= days; day++) {
