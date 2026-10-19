@@ -110,7 +110,7 @@ fun interest(db: UserDB){
     println()
     println("Day | Interest | Balance |")
     for (row in db.computeInterest(user, days)) {
-        println("%-3d | %-8.2f | %.2f".format(row.day, row.interest, row.balance))
+        println("%-3d | %-8.2f | %.2f |".format(row.day, row.interest, row.balance))
     }
 }
 
