@@ -5,6 +5,9 @@ class ExchangeRateSet {
     fun setRate(currencyNum: Int, rate: Double){
         rates[currencyNum-1] = rate
     }
+    fun getRate(currencyNum: Int): Double{
+        return rates[currencyNum-1]
+    }
     fun convertCurrency(sourceCurr: Int, targetCurr: Int, amount: Double): Double {
         return (amount * rates[sourceCurr-1]) / rates[targetCurr-1]
     }
