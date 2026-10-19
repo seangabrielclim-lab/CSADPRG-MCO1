@@ -23,6 +23,30 @@ get_user_index <- function(name, users){
     return (-1)
 }
 
+read_line <- function(){
+    line <- readLines(input, n = 1)
+    if (length(line) == 0){
+        cat("Thank you for banking with us!\n")
+        close(input)
+        quit(status = 0)
+    }
+    return (line)
+}
+
+validate_input <- function(msg, low, high){
+    isValid <- FALSE
+    while (!isValid){
+        cat(msg)
+        choice <- suppressWarnings(as.integer(read_line()))
+        if (is.na(choice) || choice < low || choice > high){
+            cat("*** Error Invalid Input ***\n\n")
+        } else {
+            isValid <- TRUE
+        }
+    }
+    return (choice)
+}
+
 main_menu <- function(){
     cat("Select Transaction:\n")
     cat("[1] Register Account Name\n")
@@ -31,15 +55,60 @@ main_menu <- function(){
     cat("[4] Currency Exchange\n")
     cat("[5] Record Exchange Rates\n")
     cat("[6] Show Interest Amount\n\n")
-    cat("Choice: ")
+    
+    mainChoice <- validate_input("Choice: ", 1, 6)
 
-    initial <- as.integer(readLines(input, n = 1))
-    mainChoice <- -1
-    if (length(initial) != 0 && !is.na(initial)){
-        mainChoice <- initial
-    }
     cat("\n")
     return (mainChoice)
+}
+
+get_amt <- function(msg){
+    isValid <- FALSE
+    while (!isValid){
+        cat(msg)
+        amt <- suppressWarnings(as.numeric(read_line()))
+        if (is.na(amt) || amt <= 0 || !is.finite(amt)){
+            cat("*** Error Invalid Input ***\n\n")
+        } else {
+            isValid <- TRUE
+        }
+    }
+    return (amt)
+}
+
+get_acc <- function(users){
+    isValid <- FALSE
+    while (!isValid){
+        cat("Account Name: ")
+        name <- read_line()
+
+        if (nchar(name) == 0 || !check_user(name, users)){
+            cat("*** Error Invalid Input ***\n\n")
+        } else {
+            isValid <- TRUE
+        }
+    }
+
+    return (name)
+}
+
+print_details <- function(index){
+    currentBalance <- bankStatus[[index]][[balIndex]]
+    currentCurrency <- bankStatus[[index]][[currencyIndex]]
+
+    cat("\nCurrent Balance:", sprintf("%.2f", currentBalance), "\n")
+    cat("Currency:", currentCurrency, "\n")
+
+    return (currentBalance)
+}
+
+print_curr_list <- function(){
+    cat("[1] Philippine Peso (PHP)\n")
+    cat("[2] United States Dollar (USD)\n")
+    cat("[3] Japanese Yen (JPY)\n")
+    cat("[4] British Pound Sterling (GBP)\n")
+    cat("[5] Euro (EUR)\n")
+    cat("[6] Chinese Yuan Renminni (CNY)\n\n")
 }
 
 reg_acc <- function(){
@@ -47,7 +116,7 @@ reg_acc <- function(){
     while (!isValid){
         cat("Register Account Name\n")
         cat("Account Name: ")
-        name <- readLines(input, n = 1)
+        name <- read_line()
 
         if (nchar(name) == 0 || check_user(name, users)){
             cat("*** Error Invalid Input ***\n\n")
@@ -66,58 +135,23 @@ curr_exchange <- function(){
     while (isRepeating){
         cat("Foreign Currency Exchange\n")
         cat("Source Currency Option:\n")
-        cat("[1] Philippine Peso (PHP)\n")
-        cat("[2] United States Dollar (USD)\n")
-        cat("[3] Japanese Yen (JPY)\n")
-        cat("[4] British Pound Sterling (GBP)\n")
-        cat("[5] Euro (EUR)\n")
-        cat("[6] Chinese Yuan Renminni (CNY)\n\n")
-        isValid <- FALSE
-        while (!isValid){
-            cat("Source Currency: ")
-            srcCurr <- as.integer(readLines(input, n = 1))
+        print_curr_list()
 
-            if (is.na(srcCurr) || srcCurr < 1 || srcCurr > 6){
-                cat("*** Error Invalid Input ***\n")
-            } else {
-                isValid <- FALSE
-                while (!isValid){
-                    cat("Source Amount: ")
-                    srcAmt <- as.numeric(readLines(input, n = 1))
-                    if (is.na(srcAmt) || srcAmt <= 0 || !is.finite(srcAmt)){
-                        cat("*** Error Invalid Input ***\n")
-                    } else {
-                        isValid <- TRUE
-                    }
-                }
-            }
-        }
+        srcCurr <- validate_input("Source Currency: ", 1, 6)
+        srcAmt <- get_amt("Source Amount: ")    
 
         cat("Exchanged Currency Options:\n")
-        cat("[1] Philippine Peso (PHP)\n")
-        cat("[2] United States Dollar (USD)\n")
-        cat("[3] Japanese Yen (JPY)\n")
-        cat("[4] British Pound Sterling (GBP)\n")
-        cat("[5] Euro (EUR)\n")
-        cat("[6] Chinese Yuan Renminni (CNY)\n\n")
-        isValid <- FALSE
-        while (!isValid){
-            cat("Exchange Currency: ")
-            exCurr <- as.integer(readLines(input, n = 1))
+        print_curr_list()
 
-            if (is.na(exCurr) || exCurr < 1 || exCurr > 6){
-                cat("*** Error Invalid Input ***\n")
-            } else {
-                isValid <- TRUE
-            }
-        }
+        exCurr <- validate_input("Exchange Currency: ", 1, 6)
+        
         exchangedAmount <- srcAmt * exchangeRates[[srcCurr]] / exchangeRates[[exCurr]]
         cat("Exchange Amount:", sprintf("%.2f", exchangedAmount), "\n")
 
         isValid <- FALSE
         while (!isValid){
             cat("\nConvert another currency (Y/N)? . . . ")
-            willRepeat <- as.character(readLines(input, n = 1))
+            willRepeat <- as.character(read_line())
             if (tolower(willRepeat) == 'n'){
                 isRepeating <- FALSE
                 isValid <- TRUE
@@ -133,145 +167,82 @@ curr_exchange <- function(){
 }
 
 rec_rate <- function(){
-    cat("Record Exchange Rate\n\n")
-    cat("[1] Philippine Peso (PHP)\n")
-    cat("[2] United States Dollar (USD)\n")
-    cat("[3] Japanese Yen (JPY)\n")
-    cat("[4] British Pound Sterling (GBP)\n")
-    cat("[5] Euro (EUR)\n")
-    cat("[6] Chinese Yuan Renminni (CNY)\n\n")
-
+    cat("Record Exchange Rate\n")
+    print_curr_list()
     isValid <- FALSE
     while (!isValid){
-        cat("Select Foreign Currency: ")
-        chosen_currency <- as.integer(readLines(input, n = 1))
-
-        if (is.na(chosen_currency) || (chosen_currency == 1) || (chosen_currency < 2 || chosen_currency > 6)){
-            cat("*** Error Invalid Input ***\n")
+        chosenCurr <- validate_input("Select Foreign Currency: ", 1, 6)
+        if (chosenCurr == 1){
+            cat("Cannot choose base currency\n\n")
         } else {
-            while (!isValid){
-                cat("Exchange Rate: ")
-                rate <- as.numeric(readLines(input, n = 1))
-
-                if (is.na(rate) || rate <= 0 || !is.finite(rate)){
-                    cat("*** Error Invalid Input ***\n")
-                } else {
-                    isValid <- TRUE
-                }
-            }
+            rate <- get_amt("Exchange Rate: ")
+            isValid <- TRUE
         }
     }
-    exchangeRates[[chosen_currency]] <<- rate
+    exchangeRates[[chosenCurr]] <<- rate
 
+}
+
+get_currency <- function(){
+    cat("\n")
+    print_curr_list()
+    return (validate_input("Transaction Currency: ", 1, 6))
 }
 
 deposit <- function(){
-    isValid <- FALSE
-    while (!isValid){
-        cat("Deposit Amount\n")
-        cat("Account Name: ")
-        name <- readLines(input, n = 1)
+    cat("Deposit Amount\n")
+    name <- get_acc(users)    
 
-        if (nchar(name) == 0 || !check_user(name, users)){
-            cat("*** Error Invalid Input ***\n\n")
-        } else {
-            isValid <- TRUE
-        }
-    }
     index <- get_user_index(name, users)
-    currentBalance <- bankStatus[[index]][[balIndex]]
-    currentCurrency <- bankStatus[[index]][[currencyIndex]]
-
-    cat("\nCurrent Balance:", sprintf("%.2f", currentBalance), "\n")
-    cat("Currency:", currentCurrency, "\n")
-
-    isValid <- FALSE
-    while (!isValid){
-        cat("Deposit Amount: ")
-        depAmount <- as.numeric(readLines(input, n = 1))
-        if (is.na(depAmount) || depAmount <= 0 || !is.finite(depAmount)){
-            cat("*** Error Invalid Input ***\n\n")
-        } else {
-            isValid <- TRUE
-        }
-    }
+    currentBalance <- print_details(index)
     
+    srcCurr <- get_currency()
+    depAmount <- get_amt("Deposit Amount: ") * exchangeRates[[srcCurr]]
+    
+    cat(sprintf("Equivalent in PHP (rate %.2f): %.2f\n", exchangeRates[[srcCurr]], depAmount))
     bankStatus[[index]][balIndex] <<- currentBalance + depAmount # Update user bank status
-    cat("Updated Balance:", sprintf("%.2f", bankStatus[[index]][[balIndex]]), "\n")
+    cat("Updated Balance:", sprintf("%.2f", bankStatus[[index]][[balIndex]]), "\n\n")
 }
 
 withdraw <- function(){
-    isValid <- FALSE
-    while (!isValid){
-        cat("Withdraw Amount\n")
-        cat("Account Name: ")
-        name <- readLines(input, n = 1)
-
-        if (nchar(name) == 0 || !check_user(name, users)){
-            cat("*** Error Invalid Input ***\n\n")
-        } else {
-            isValid <- TRUE
-        }
-    }
+    cat("Withdraw Amount\n")
+    name <- get_acc(users)
 
     index <- get_user_index(name, users)
-    currentBalance <- bankStatus[[index]][[balIndex]]
-    currentCurrency <- bankStatus[[index]][[currencyIndex]]
+    currentBalance <- print_details(index)
 
-    cat("Current Balance:", sprintf("%.2f", currentBalance), "\n")
-    cat("Currency:", currentCurrency, "\n\n")
-    withAmount <- 0
     if (currentBalance == 0){
         cat("*** Error Invalid Input ***\n\n") # No balance in bank account to withdraw
     } else{
+        srcCurr <- get_currency()
         isValid <- FALSE
         while (!isValid){
-            cat("Withdraw Amount: ")
-            withAmount <- as.numeric(readLines(input, n = 1))
-            if (is.na(withAmount) || withAmount <= 0 || (withAmount > currentBalance) || !is.finite(withAmount)){
+            amt <- get_amt("Withdraw Amount: ")
+            withAmount <- amt * exchangeRates[[srcCurr]]
+            if (withAmount > currentBalance){
                 cat("*** Error Invalid Input ***\n\n")
             } else {
                 isValid <- TRUE
             }
         }
+        
+        cat(sprintf("Equivalent in PHP (rate %.2f): %.2f\n", exchangeRates[[srcCurr]], withAmount))
         bankStatus[[index]][balIndex] <<- currentBalance - withAmount # Update user's bank account
-        cat("Updated Balance:", sprintf("%.2f", bankStatus[[index]][[balIndex]]), "\n")    
+        cat("Updated Balance:", sprintf("%.2f", bankStatus[[index]][[balIndex]]), "\n\n")    
     }
 
 }
 
 show_interest <- function(){
     cat("Show Interest Amount\n")
-    isValid <- FALSE
-
-    while (!isValid){
-        cat("Account Name: ")
-        name <- readLines(input, n = 1)
-
-        if (nchar(name) == 0 || !check_user(name, users)){
-            cat("*** Error Invalid Input ***\n\n")
-        } else {
-            isValid <- TRUE
-        }
-    }
+    name <- get_acc(users)
+    
     index <- get_user_index(name, users)
-    currentBalance <- bankStatus[[index]][[balIndex]]
-    currentCurrency <- bankStatus[[index]][[currencyIndex]]
-    cat("Current Balance:", sprintf("%.2f", currentBalance), "\n")
-    cat("Currency:", currentCurrency, "\n")
+    currentBalance <- print_details(index)
     cat("Interest Rate: 5%\n\n")
 
-    isValid <- FALSE
-    while (!isValid){
-        cat("Total Number of Days: ")
-        numDays <- as.integer(readLines(input, n = 1))
-
-        if (is.na(numDays) || numDays < 1){
-            cat("*** Error Invalid Input ***\n\n")
-        } else {
-            isValid <- TRUE
-        }
-    }
+    numDays <- validate_input("Total Number of Days: ", 1, 3650)
+    
     cat("Day | Interest | Balance |\n")
     newBal <- currentBalance
     for (i in 1:numDays){
@@ -315,18 +286,17 @@ while (isRunning){
         withdraw()
     }  else if (mainChoice == 6){
         show_interest()
-    } else {
-        cat("*** Error Invalid Input ***\n\n")
     }
 
     exited <- FALSE
     while (!exited && isRunning){
         cat("Back to the Main Menu (Y/N): ")
-        exitInput <- as.character(readLines(input, n = 1))
+        exitInput <- as.character(read_line())
 
         if (tolower(exitInput) == 'y'){
             exited <- TRUE
         } else if (tolower(exitInput) == 'n'){
+            cat("Thank you for banking with us!\n")
             isRunning <- FALSE
         } else {
             cat("*** Error Invalid Input ***\n")
