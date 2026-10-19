@@ -38,24 +38,12 @@ public class UserDB {
         return null;
     }
 
-    public boolean depositFunds(User user, double amount){
-        if(amount < 0){
-            return false;
-        }
-        else{
-            user.setAmount(user.getAmount()+amount);
-            return true;
-        }
+    public void depositFunds(User user, double amount){
+        user.setAmount(user.getAmount()+amount);
     }
 
-    public boolean withdrawFunds(User user, double amount){
-        if(amount < 0){
-            return false;
-        }
-        else{
+    public void withdrawFunds(User user, double amount){
             user.setAmount(user.getAmount()-amount);
-            return true;
-        }
     }
 
     public boolean interestFunds(User user, int days, double rate, double[] amounts){
