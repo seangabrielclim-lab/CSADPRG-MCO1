@@ -39,7 +39,7 @@ validate_input <- function(msg, low, high){
         cat(msg)
         choice <- suppressWarnings(as.integer(read_line()))
         if (is.na(choice) || choice < low || choice > high){
-            cat("*** Error Invalid Input ***\n\n")
+            cat(sprintf("Invalid choice. Enter a number from %d to %d.\n", low, high))
         } else {
             isValid <- TRUE
         }
@@ -68,7 +68,7 @@ get_amt <- function(msg){
         cat(msg)
         amt <- suppressWarnings(as.numeric(read_line()))
         if (is.na(amt) || amt <= 0 || !is.finite(amt)){
-            cat("*** Error Invalid Input ***\n\n")
+            cat("Invalid amount. Enter a number greater than 0.\n")
         } else {
             isValid <- TRUE
         }
@@ -159,7 +159,7 @@ curr_exchange <- function(){
                 cat("\n")
                 isValid <- TRUE
             } else{
-                cat("*** Error Invalid Input ***\n\n")
+                cat("Please enter Y or N.\n")
             }
         }
     } 
@@ -173,7 +173,7 @@ rec_rate <- function(){
     while (!isValid){
         chosenCurr <- validate_input("Select Foreign Currency: ", 1, 6)
         if (chosenCurr == 1){
-            cat("Cannot choose base currency\n\n")
+            cat("PHP is the base currency; its rate is fixed at 1.00.\n")
         } else {
             rate <- get_amt("Exchange Rate: ")
             isValid <- TRUE
@@ -212,7 +212,7 @@ withdraw <- function(){
     currentBalance <- print_details(index)
 
     if (currentBalance == 0){
-        cat("*** Error Invalid Input ***\n\n") # No balance in bank account to withdraw
+        cat("Insufficient balance. Withdrawal cancelled.\n") # No balance in bank account to withdraw
     } else{
         srcCurr <- get_currency()
         isValid <- FALSE
@@ -220,7 +220,7 @@ withdraw <- function(){
             amt <- get_amt("Withdraw Amount: ")
             withAmount <- amt * exchangeRates[[srcCurr]]
             if (withAmount > currentBalance){
-                cat("*** Error Invalid Input ***\n\n")
+                cat("Insufficient balance. Withdrawal cancelled.\n")
             } else {
                 isValid <- TRUE
             }
@@ -279,7 +279,7 @@ while (isRunning){
     } else if (mainChoice == 5){
         rec_rate()
     } else if (length(users) == 0) { # There are no registered users, therefore cannot allow the other transactions
-        cat("*** Error Invalid Input ***\n\n")
+        cat("No account registered yet. Please register an account name first.\n")
     } else if (mainChoice == 2){
         deposit()
     } else if (mainChoice == 3){
@@ -299,7 +299,7 @@ while (isRunning){
             cat("Thank you for banking with us!\n")
             isRunning <- FALSE
         } else {
-            cat("*** Error Invalid Input ***\n")
+            cat("Please enter Y or N.\n")
         }
     }
 }
