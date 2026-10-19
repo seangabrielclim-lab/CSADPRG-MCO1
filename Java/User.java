@@ -8,7 +8,7 @@ public class User {
 
     public User(String name) {
         this.name = name;
-        this.amount = 0;
+        this.amount = 1000.00;
         this.currency = "PHP";
         id = this.nextUserID++;
     }
