@@ -45,7 +45,7 @@ fun deposit(db: UserDB, rates: ExchangeRateSet){
     var amount = getAmt("Deposit Amount: ")
     amount = rates.convertCurrency(depositCurr, 1, amount)
     println()
-    println("Equivalent in PHP: ${"%.2f".format(amount)} (Rate = ${"%.2f".format(rates.getRate(depositCurr))})")
+    if (depositCurr != 1) println("Equivalent in PHP: ${"%.2f".format(amount)} (Rate = ${"%.2f".format(rates.getRate(depositCurr))})")
     db.deposit(user, amount)
     println("Updated Balance: ${"%.2f".format(user.balance)}")
 }
@@ -68,7 +68,7 @@ fun withdraw(db: UserDB, rates: ExchangeRateSet){
     }
     else {
         db.withdraw(user, amount)
-        println("Equivalent in PHP: ${"%.2f".format(amount)} (Rate = ${"%.2f".format(rates.getRate(withdrawCurr))})")
+        if (withdrawCurr != 1)  println("Equivalent in PHP: ${"%.2f".format(amount)} (Rate = ${"%.2f".format(rates.getRate(withdrawCurr))})")
         println("Updated Balance: ${"%.2f".format(user.balance)}")
         return
     }
