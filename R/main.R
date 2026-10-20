@@ -83,7 +83,7 @@ get_acc <- function(users){
         name <- read_line()
 
         if (nchar(name) == 0 || !check_user(name, users)){
-            cat("*** Error Invalid Input ***\n\n")
+            cat("Name does not exist. Please Enter an existing user.\n")
         } else {
             isValid <- TRUE
         }
@@ -119,7 +119,7 @@ reg_acc <- function(){
         name <- read_line()
 
         if (nchar(name) == 0 || check_user(name, users)){
-            cat("*** Error Invalid Input ***\n\n")
+            cat("Invalid username. Please try again.\n")
         } else{
             isValid <- TRUE
         }
