@@ -101,7 +101,7 @@ public class Main {
 
                                 d = userDB.findUserByName(depositAcct);
                                 if(d == null) {
-                                    System.out.println("\n*** Error Invalid Input ***\n");
+                                    System.out.println("Name does not exist. Please Enter an existing user.\n");
                                 } else {
                                     System.out.printf("Current Balance: %.2f\n", d.getAmount());
                                     System.out.println("Currency: " + d.getCurrency());
@@ -177,7 +177,7 @@ public class Main {
 
                                 w = userDB.findUserByName(depositAcct);
                                 if(w == null) {
-                                    System.out.println("\n*** Error Invalid Input ***\n");
+                                    System.out.println("Name does not exist. Please Enter an existing user.\n");
                                 } else {
                                     System.out.printf("Current Balance: %.2f\n", w.getAmount());
                                     System.out.println("Currency: " + w.getCurrency());
