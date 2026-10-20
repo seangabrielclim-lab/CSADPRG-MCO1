@@ -7,17 +7,18 @@ Language: C
 
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #define MAX_NAME      100
-#define MAX_LINE      256
+#define MAX_ACCOUNTS  50
 #define NUM_CURRENCY  6
 #define PHP           0
 #define INTEREST_RATE 0.05
+#define START_BALANCE 1000.00
 
 typedef struct {
     char name[MAX_NAME];
     double balance;      /* always stored in PHP (base currency) */
-    int registered;
 } Account;
 
 const char *CURRENCY_NAMES[NUM_CURRENCY] = {
@@ -29,19 +30,17 @@ const char *CURRENCY_NAMES[NUM_CURRENCY] = {
     "Chinese Yuan Renminni (CNY)"
 };
 
-const char *CURRENCY_CODES[NUM_CURRENCY] = {
-    "PHP", "USD", "JPY", "GBP", "EUR", "CNY"
-};
 
 double rates[NUM_CURRENCY] = { 1.00, 62.00, 0.40, 84.00, 72.00, 9.00 };
+
+
+
 
 void clearInput(void)
 {
     int charac;
-    while ((charac = getchar()) != '\n' && charac != EOF)
-        ;
+    while ((charac = getchar()) != '\n' && charac != EOF);
 }
-
 
 int readChoice(const char *msg, int min, int max)
 {
@@ -109,91 +108,136 @@ double convert(double amount, int from, int to)
     return amount * rates[from] / rates[to];
 }
 
-double roundCents(double value)
+int sameName(const char *a, const char *b)
 {
-    return (long long) (value * 100 + 0.5) / 100.0;
+    while (*a && *b) {
+        if (tolower(*a) != tolower(*b))
+            return 0;
+        a++;
+        b++;
+    }
+    return *a == *b;
 }
 
-int requireAccount(Account *acc)
+int nameTaken(Account accounts[], int count, const char *name)
 {
-    if (!acc->registered) {
+    int i;
+    for (i = 0; i < count; i++)
+        if (sameName(accounts[i].name, name))
+            return 1;
+    return 0;
+}
+
+int findAccount(Account accounts[], int count, const char *name)
+{
+    int i;
+    for (i = 0; i < count; i++)
+        if (strcmp(accounts[i].name, name) == 0)
+            return i;
+    return -1;
+}
+
+Account *selectAccount(Account accounts[], int count)
+{
+    char name[MAX_NAME];
+    int index;
+
+    if (count == 0) {
         printf("No account registered yet. Please register an account name first.\n");
-        return 0;
+        return NULL;
     }
-    return 1;
+
+    printf("Account Name: ");
+    scanf(" %99[^\n]", name);
+    clearInput();
+
+    index = findAccount(accounts, count, name);
+    if (index == -1) {
+        printf("Account not found.\n");
+        return NULL;
+    }
+    return &accounts[index];
 }
 
 void printAccountHeader(Account *acc)
 {
-    printf("Account Name: %s\n", acc->name);
     printf("Current Balance: %.2f\n", acc->balance);
-    printf("Currency: PHP\n\n");
+    printf("Currency: PHP\n");
 }
 
-double readAmountInCurrency(const char *label)
+double readAmountInCurrency(const char *msg)
 {
-    char msg[MAX_LINE];
     int currency;
     double amount, inPHP;
 
     printCurrencyList();
     currency = readChoice("Transaction Currency: ", 1, NUM_CURRENCY) - 1;
 
-    sprintf(msg, "%s Amount: ", label);
     amount = readPositiveAmount(msg);
 
     if (currency == PHP)
         return amount;
 
-    inPHP = roundCents(convert(amount, currency, PHP));
+    inPHP = convert(amount, currency, PHP);
     printf("Equivalent in PHP (rate %.2f): %.2f\n", rates[currency], inPHP);
     return inPHP;
 }
 
-void registerAccount(Account *acc)
+void registerAccount(Account accounts[], int *count)
 {
     char newName[MAX_NAME];
 
     printf("Register Account Name\n");
+    if (*count == MAX_ACCOUNTS) {
+        printf("Maximum number of accounts reached.\n");
+        return;
+    }
+
     printf("Account Name: ");
     scanf(" %99[^\n]", newName);
     clearInput();
 
-    if (acc->registered && strcmp(newName, acc->name) == 0) {
+    if (nameTaken(accounts, *count, newName)) {
         printf("An account with this name is already registered.\n");
         return;
     }
 
-    strcpy(acc->name, newName);
-    acc->balance = 0.00;
-    acc->registered = 1;
+    strcpy(accounts[*count].name, newName);
+    accounts[*count].balance = START_BALANCE;
+    (*count)++;
 }
 
-void deposit(Account *acc)
+void deposit(Account accounts[], int count)
 {
+    Account *acc;
     double amount;
 
     printf("Deposit Amount\n");
-    if (!requireAccount(acc))
+    acc = selectAccount(accounts, count);
+    if (acc == NULL)
         return;
 
     printAccountHeader(acc);
-    amount = readAmountInCurrency("Deposit");
+    printf("\n");
+    amount = readAmountInCurrency("Deposit Amount: ");
 
-    acc->balance = roundCents(acc->balance + amount);
+    acc->balance = acc->balance + amount;
     printf("Updated Balance: %.2f\n", acc->balance);
 }
 
-void withdraw(Account *acc)
+void withdraw(Account accounts[], int count)
 {
+    Account *acc;
     double amount;
 
     printf("Withdraw Amount\n");
-    if (!requireAccount(acc))
+    acc = selectAccount(accounts, count);
+    if (acc == NULL)
         return;
 
     printAccountHeader(acc);
-    amount = readAmountInCurrency("Withdraw");
+    printf("\n");
+    amount = readAmountInCurrency("Withdraw Amount: ");
 
     if (amount > acc->balance) {
         printf("Insufficient balance. Withdrawal cancelled.\n");
@@ -201,7 +245,7 @@ void withdraw(Account *acc)
         return;
     }
 
-    acc->balance = roundCents(acc->balance - amount);
+    acc->balance = acc->balance - amount;
     printf("Updated Balance: %.2f\n", acc->balance);
 }
 
@@ -244,13 +288,15 @@ void recordExchangeRate(void)
     rates[currency] = readPositiveAmount("Exchange Rate: ");
 }
 
-void showInterest(Account *acc)
+void showInterest(Account accounts[], int count)
 {
+    Account *acc;
     int days, day;
     double balance, interest;
 
     printf("Show Interest Amount\n");
-    if (!requireAccount(acc))
+    acc = selectAccount(accounts, count);
+    if (acc == NULL)
         return;
 
     printAccountHeader(acc);
@@ -261,8 +307,8 @@ void showInterest(Account *acc)
     balance = acc->balance;
     printf("\nDay | Interest | Balance |\n");
     for (day = 1; day <= days; day++) {
-        interest = roundCents(balance * (INTEREST_RATE / 365));
-        balance = roundCents(balance + interest);
+        interest = (int) (balance * (INTEREST_RATE / 365) * 100 + 0.5) / 100.0;
+        balance = balance + interest;
         printf("%-3d | %-8.2f | %-7.2f |\n", day, interest, balance);
     }
 }
@@ -270,7 +316,8 @@ void showInterest(Account *acc)
 
 int main(void)
 {
-    Account acc = { "", 0.00, 0 };
+    Account accounts[MAX_ACCOUNTS];
+    int numAccounts = 0;
     int choice;
     int running = 1;
 
@@ -287,12 +334,12 @@ int main(void)
         printf("\n");
 
         switch (choice) {
-            case 1: registerAccount(&acc); break;
-            case 2: deposit(&acc);         break;
-            case 3: withdraw(&acc);        break;
-            case 4: currencyExchange();    break;
-            case 5: recordExchangeRate();  break;
-            case 6: showInterest(&acc);    break;
+            case 1: registerAccount(accounts, &numAccounts); break;
+            case 2: deposit(accounts, numAccounts);          break;
+            case 3: withdraw(accounts, numAccounts);         break;
+            case 4: currencyExchange();                      break;
+            case 5: recordExchangeRate();                    break;
+            case 6: showInterest(accounts, numAccounts);     break;
         }
 
         printf("\n");
