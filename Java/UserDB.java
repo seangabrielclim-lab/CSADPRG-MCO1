@@ -31,7 +31,7 @@ public class UserDB {
 
     public User findUserByName(String name){
         for(int i = 0; i < getUsers().size(); i++){
-            if(getUsers().get(i).getName().equals(name)){
+            if(getUsers().get(i).getName().equalsIgnoreCase(name)){
                 return getUsers().get(i);
             }
         }

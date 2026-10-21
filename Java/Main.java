@@ -448,7 +448,7 @@ public class Main {
                 System.out.print("\nBack to the Main Menu (Y/N): ");
                 back = sc.nextLine();
 
-                if (back.equalsIgnoreCase("Y") || back.equalsIgnoreCase("N")) {
+                if (back.equals("Y") || back.equals("N")) {
                     valContinue = true;
                 } else {
                     System.out.println("Please enter Y or N.");
