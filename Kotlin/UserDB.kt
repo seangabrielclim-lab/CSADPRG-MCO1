@@ -19,7 +19,7 @@ class UserDB {
         return users.isEmpty()
     }
     fun findUserByName(name: String): User? {
-        return users.find { it.name == name }
+        return users.find { it.name.equals(name, ignoreCase = true) }
     }
     fun deposit(user: User, amount: Double): Boolean {
         if (amount <= 0) return false
