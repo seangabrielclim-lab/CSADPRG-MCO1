@@ -9,6 +9,10 @@
 # money, convert currencies, update exchange rates, and calculate projected
 # daily interest. It uses a command-line interface.
 
+# To run this program, just go to the folder CSADPRG-MCO1 and type cmd in the paths area
+# This would take you to the command line where you can enter the command
+# Rscript R\main.R, to run the program
+
 # This function checks whether a certain username is already taken
 # The program is non-case sensitive so Sean is the same as sean
 # It returns true if the name is already in users, and false otherwise
