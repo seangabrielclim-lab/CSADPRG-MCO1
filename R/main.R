@@ -164,7 +164,7 @@ reg_acc <- function(){
         name <- read_line()
 
         if (nchar(name) == 0 || check_user(name, users)){
-            cat("Invalid username. Please try again.\n")
+            cat("An account with this name is already registered.\n")
         } else{
             isValid <- TRUE
         }
