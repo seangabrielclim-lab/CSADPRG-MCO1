@@ -30,8 +30,8 @@ public class Main {
         Currencies.put(6, 9.00); // cny
 
         //test user
-        /*User test = new User("n");
-        userDB.addUser(test);*/
+        User test = new User("n");
+        userDB.addUser(test);
 
         //main loop
         while (!exited) {
@@ -77,7 +77,7 @@ public class Main {
                             userDB.addUser(newUser);
                             done1 = true;
                         } else {
-                            System.out.println("An account with this name is already registered.\n");
+                            System.out.println("An account with this name is already registered.");
                         }
                     }
                     break;
@@ -101,7 +101,7 @@ public class Main {
 
                                 d = userDB.findUserByName(depositAcct);
                                 if(d == null) {
-                                    System.out.println("Name does not exist. Please Enter an existing user.\n");
+                                    System.out.println("Name does not exist. Please Enter an existing user.");
                                 } else {
                                     System.out.printf("Current Balance: %.2f\n", d.getAmount());
                                     System.out.println("Currency: " + d.getCurrency());
@@ -114,7 +114,7 @@ public class Main {
                             System.out.println("[3] Japanese Yen (JPY)");
                             System.out.println("[4] British Pound Sterling (GBP)");
                             System.out.println("[5] Euro (EUR)");
-                            System.out.println("[6] Chinese Yuan Renmimi (CNY)");
+                            System.out.println("[6] Chinese Yuan Renmimi (CNY)\n");
 
                             //while loop for checking if currency is valid
                             boolean valDepCurrency = false;
@@ -129,7 +129,7 @@ public class Main {
                                         sc.nextLine();
                                     }
                                 }catch (InputMismatchException | IllegalArgumentException e) {
-                                    System.out.println("Invalid choice. Enter a number from 1 to 6.\n");
+                                    System.out.println("Invalid choice. Enter a number from 1 to 6.");
                                     sc.nextLine();
                                 }
                             }
@@ -146,12 +146,13 @@ public class Main {
                                         sc.nextLine();
                                         deposit = deposit*Currencies.get(depCurrency);
                                         userDB.depositFunds(d, deposit);
-                                        System.out.printf("Updated Balance: %.2f\n", d.getAmount());
+                                        System.out.printf("Equivalent in PHP (rate %.2f): %.2f\n", Currencies.get(depCurrency), deposit);
+                                        System.out.printf("Updated Balance: %.2f\n\n", d.getAmount());
                                         valDepAmount = true;
                                         done2 = true;
                                     }
                                 }catch(InputMismatchException | IllegalArgumentException e){
-                                    System.out.println("Invalid amount. Enter a number greater than 0.\n");
+                                    System.out.println("Invalid amount. Enter a number greater than 0.");
                                     sc.nextLine();
                                 }
                             }
@@ -177,7 +178,7 @@ public class Main {
 
                                 w = userDB.findUserByName(depositAcct);
                                 if(w == null) {
-                                    System.out.println("Name does not exist. Please Enter an existing user.\n");
+                                    System.out.println("Name does not exist. Please Enter an existing user.");
                                 } else {
                                     System.out.printf("Current Balance: %.2f\n", w.getAmount());
                                     System.out.println("Currency: " + w.getCurrency());
@@ -190,7 +191,7 @@ public class Main {
                             System.out.println("[3] Japanese Yen (JPY)");
                             System.out.println("[4] British Pound Sterling (GBP)");
                             System.out.println("[5] Euro (EUR)");
-                            System.out.println("[6] Chinese Yuan Renmimi (CNY)");
+                            System.out.println("[6] Chinese Yuan Renmimi (CNY)\n");
 
                             //while loop for checking if currency is valid
                             boolean valWitCurrency = false;
@@ -205,7 +206,7 @@ public class Main {
                                         sc.nextLine();
                                     }
                                 }catch (InputMismatchException | IllegalArgumentException e) {
-                                    System.out.println("Invalid choice. Enter a number from 1 to 6.\n");
+                                    System.out.println("Invalid choice. Enter a number from 1 to 6.");
                                     sc.nextLine();
                                 }
                             }
@@ -221,17 +222,18 @@ public class Main {
                                         throw new IllegalArgumentException("*** Error Invalid Input ***");
                                     }
                                     else if (w.getAmount() < withdraw) {
-                                        System.out.println("Insufficient balance. Withdrawal cancelled.\n");
+                                        System.out.println("Insufficient balance. Withdrawal cancelled.");
                                     }
                                     else{
                                         sc.nextLine();
                                         userDB.withdrawFunds(w, withdraw);
-                                        System.out.printf("Updated Amount: %.2f\n", w.getAmount());
+                                        System.out.printf("Equivalent in PHP (rate %.2f): %.2f\n", Currencies.get(withCurrency), withdraw);
+                                        System.out.printf("Updated Amount: %.2f\n\n", w.getAmount());
                                         valWitAmount = true;
                                         done3 = true;
                                     }
                                 }catch(InputMismatchException | IllegalArgumentException e){
-                                    System.out.println("Invalid amount. Enter a number greater than 0.\n");
+                                    System.out.println("Invalid amount. Enter a number greater than 0.");
                                     sc.nextLine();
                                 }
                             }
@@ -268,7 +270,7 @@ public class Main {
                                     sc.nextLine();
                                 }
                             }catch (InputMismatchException | IllegalArgumentException e) {
-                                System.out.println("Invalid choice. Enter a number from 1 to 6.\n");
+                                System.out.println("Invalid choice. Enter a number from 1 to 6.");
                                 sc.nextLine();
                             }
                         }
@@ -287,7 +289,7 @@ public class Main {
                                     sc.nextLine();
                                 }
                             }catch (InputMismatchException | IllegalArgumentException e) {
-                                System.out.println("Invalid amount. Enter a number greater than 0.\n");
+                                System.out.println("Invalid amount. Enter a number greater than 0.");
                                 sc.nextLine();
                             }
                         }
@@ -304,19 +306,19 @@ public class Main {
                         //while loop for checking if exchange currency is valid
                         boolean valDestCurrency = false;
                         while (!valDestCurrency) {
-                            System.out.print("Exchanged Currency: ");
+                            System.out.print("Exchange Currency: ");
                             try{
                                 int ecOption = sc.nextInt();
                                 if (!Currencies.containsKey(ecOption)) {
                                     throw new IllegalArgumentException("*** Error Invalid Input ***");
                                 } else {
                                     double ecAmount = sourceAmount / Currencies.get(ecOption);
-                                    System.out.printf("Exchange Amount: %.2f\n", ecAmount);
+                                    System.out.printf("Exchange Amount: %.2f\n\n", ecAmount);
                                     valDestCurrency = true;
                                     sc.nextLine();
                                 }
                             }catch (InputMismatchException | IllegalArgumentException e) {
-                                System.out.println("Invalid choice. Enter a number from 1 to 6.\n");
+                                System.out.println("Invalid choice. Enter a number from 1 to 6.");
                                 sc.nextLine();
                             }
                         }
@@ -324,7 +326,7 @@ public class Main {
                         //while loop for checking if user want to continue exchanging currency and validation
                         boolean valContinuation = false;
                         while (!valContinuation) {
-                            System.out.print("\nConvert another currency (Y/N)?... ");
+                            System.out.print("Convert another currency (Y/N)?... ");
                             resume =  sc.nextLine();
                             if(resume.equalsIgnoreCase("N") || resume.equalsIgnoreCase("Y")){
                                 valContinuation = true;
@@ -342,7 +344,7 @@ public class Main {
                     break;
                 case 5:
                     int fCurrency = 0;
-                    System.out.println("Record Exchange Rate\n");
+                    System.out.println("Record Exchange Rate");
                     System.out.println("[1] Philippine Peso (PHP)");
                     System.out.println("[2] United States Dollar (USD)");
                     System.out.println("[3] Japanese Yen (JPY)");
@@ -358,11 +360,14 @@ public class Main {
                             fCurrency = sc.nextInt();
                             if (!Currencies.containsKey(fCurrency)) {
                                 throw new IllegalArgumentException("*** Error Invalid Input ***");
-                            } else {
+                            } else if(fCurrency == 1) {
+                                System.out.println("PHP is the base currency; its rate is fixed at 1.00.");
+                            }
+                            else {
                                 valid = true;
                             }
                         }catch (InputMismatchException | IllegalArgumentException e) {
-                            System.out.println("Invalid choice. Enter a number from 1 to 6.\n");
+                            System.out.println("Invalid choice. Enter a number from 1 to 6.");
                             sc.nextLine();
                         }
                     }
@@ -380,7 +385,7 @@ public class Main {
                             sc.nextLine();
                             valRate = true;
                         }catch (InputMismatchException | IllegalArgumentException e) {
-                            System.out.println("Invalid amount. Enter a number greater than 0.\n");
+                            System.out.println("Invalid amount. Enter a number greater than 0.");
                             sc.nextLine();
                         }
                     }
@@ -399,7 +404,7 @@ public class Main {
 
                             User interestAcct = userDB.findUserByName(acctName);
                             if (interestAcct == null) {
-                                System.out.println("\n*** Error Invalid Input ***\n");
+                                System.out.println("Name does not exist. Please Enter an existing user.");
                             } else {
                                 System.out.printf("Current Balance: %.2f\n", interestAcct.getAmount());
                                 System.out.println("Currency: " + interestAcct.getCurrency());
@@ -407,7 +412,7 @@ public class Main {
                                 System.out.println();
                                 boolean validDays = false;
                                 while (!validDays) {
-                                    System.out.print("Total Number of Days:");
+                                    System.out.print("Total Number of Days: ");
                                     try {
                                         int days = sc.nextInt();
                                         if (days > 0 && days <= 3650) {
@@ -438,17 +443,17 @@ public class Main {
                     }
                     break;
                 default:
-                    System.out.println("Invalid choice. Enter a number from 1 to 6.\n");
+                    System.out.println("Invalid choice. Enter a number from 1 to 6.");
                     break;
             }
 
             //checks if the user wants to continue back to main menu, ensures only Y or N inputs are accepted
             boolean valContinue = false;
             while (!valContinue) {
-                System.out.print("\nBack to the Main Menu (Y/N): ");
+                System.out.print("Back to the Main Menu (Y/N): ");
                 back = sc.nextLine();
 
-                if (back.equals("Y") || back.equals("N")) {
+                if (back.equalsIgnoreCase("Y") || back.equalsIgnoreCase("N")) {
                     valContinue = true;
                 } else {
                     System.out.println("Please enter Y or N.");
