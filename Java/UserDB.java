@@ -1,3 +1,11 @@
+/*
+********************
+Last names: Chan, Cheng, Jugno, Lim
+Language: Java
+Paradigm(s): Object-oriented
+********************
+ */
+
 import java.util.ArrayList;
 import java.util.Scanner;
 
