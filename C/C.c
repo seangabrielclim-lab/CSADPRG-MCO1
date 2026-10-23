@@ -36,8 +36,6 @@ const char *CURRENCY_NAMES[NUM_CURRENCY] = {
 // PHP value of 1 unit of each currency. PHP is the base and stays 1.00.
 double rates[NUM_CURRENCY] = { 1.00, 62.00, 0.40, 84.00, 72.00, 9.00 };
 
-// ---------- Input helpers ----------
-
 // Discards whatever is left on the current input line, including the newline.
 void clearInput(void)
 {
@@ -129,22 +127,12 @@ int sameName(const char *a, const char *b)
     return *a == *b;
 }
 
-// Returns 1 if any registered account already has this name (any case).
-int nameTaken(Account accounts[], int count, const char *name)
-{
-    int i;
-    for (i = 0; i < count; i++)
-        if (sameName(accounts[i].name, name))
-            return 1;
-    return 0;
-}
-
-// Returns the index of the account with this name, or -1 if none.
+// Returns the index of the account with this name (any case), or -1 if none.
 int findAccount(Account accounts[], int count, const char *name)
 {
     int i;
     for (i = 0; i < count; i++)
-        if (strcmp(accounts[i].name, name) == 0)
+        if (sameName(accounts[i].name, name))
             return i;
     return -1;
 }
@@ -218,7 +206,7 @@ void registerAccount(Account accounts[], int *count)
         scanf(" %99[^\n]", newName);
         clearInput();
 
-        if (!nameTaken(accounts, *count, newName))
+        if (findAccount(accounts, *count, newName) == -1)
             break;
 
         printf("An account with this name is already registered.\n");
@@ -339,6 +327,7 @@ void showInterest(Account accounts[], int count)
 
     days = readChoice("Total Number of Days: ", 1, 36500);
 
+    // Projection only: the account balance itself is not changed.
     balance = acc->balance;
     printf("\nDay | Interest | Balance |\n");
     for (day = 1; day <= days; day++) {
