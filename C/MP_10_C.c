@@ -6,6 +6,12 @@ Paradigm: Imperative
 ********************
 */
 
+/*
+To run in cmd type:
+gcc -Wall MP_10_C.c -o MP_10_C.exe (MP_10_C.c should be in the same directory)
+MP_10_C.exe
+*/
+
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
