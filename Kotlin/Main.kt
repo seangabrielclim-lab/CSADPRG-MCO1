@@ -25,7 +25,7 @@ fun registerAccount(db: UserDB){
         print("Account Name: ")
         val name = readln()
         if (name.isEmpty() || db.findUserByName(name) != null) {
-            println("\nError: Name must be unique and valid\n") // ERROR!!!
+            println("\nAn account with this name is already registered.\n") // ERROR!!!
         }
         else {
             db.addUser(User(name))
