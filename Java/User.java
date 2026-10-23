@@ -1,3 +1,11 @@
+/*
+********************
+Last names: Chan, Cheng, Jugno, Lim
+Language: Java
+Paradigm(s): Object-oriented
+********************
+ */
+
 public class User {
     private static int nextUserID = 0;
     private String name;
