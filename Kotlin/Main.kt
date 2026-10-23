@@ -228,4 +228,5 @@ fun main(){
         isRunning = yesNo("Back to the Main Menu (Y/N): ")
         println()
     }
+    println("Thank you for banking with us!\n")
 }
