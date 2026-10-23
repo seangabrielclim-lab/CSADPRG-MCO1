@@ -2,6 +2,7 @@
 ********************
 Last names: Chan, Cheng, Jugno, Lim
 Language: C
+Paradigm: Imperative
 ********************
 */
 
@@ -16,11 +17,13 @@ Language: C
 #define INTEREST_RATE 0.05
 #define START_BALANCE 1000.00
 
+// One bank account: owner name and balance
 typedef struct {
     char name[MAX_NAME];
-    double balance;      /* always stored in PHP (base currency) */
+    double balance;      // always stored in PHP (base currency)
 } Account;
 
+// Display names of the supported currencies, in menu order
 const char *CURRENCY_NAMES[NUM_CURRENCY] = {
     "Philippine Peso (PHP)",
     "United States Dollar (USD)",
@@ -30,18 +33,20 @@ const char *CURRENCY_NAMES[NUM_CURRENCY] = {
     "Chinese Yuan Renminni (CNY)"
 };
 
-
+// PHP value of 1 unit of each currency. PHP is the base and stays 1.00.
 double rates[NUM_CURRENCY] = { 1.00, 62.00, 0.40, 84.00, 72.00, 9.00 };
 
+// ---------- Input helpers ----------
 
-
-
+// Discards whatever is left on the current input line, including the newline.
 void clearInput(void)
 {
     int charac;
-    while ((charac = getchar()) != '\n' && charac != EOF);
+    while ((charac = getchar()) != '\n' && charac != EOF)
+        ;
 }
 
+// Accepts "2" or "[2]" so input can be typed like in the figures.
 int readChoice(const char *msg, int min, int max)
 {
     int value, numReturn;
@@ -61,6 +66,7 @@ int readChoice(const char *msg, int min, int max)
     }
 }
 
+// Reads an amount greater than 0; asks again on invalid input
 double readPositiveAmount(const char *msg)
 {
     double value;
@@ -78,6 +84,7 @@ double readPositiveAmount(const char *msg)
     }
 }
 
+// Returns 1 for Y/y and 0 for N/n; asks again on anything else
 int readYesNo(const char *msg)
 {
     char answer;
@@ -96,6 +103,7 @@ int readYesNo(const char *msg)
     }
 }
 
+// Prints the numbered list of currencies
 void printCurrencyList(void)
 {
     int i;
@@ -103,11 +111,13 @@ void printCurrencyList(void)
         printf("[%d] %s\n", i + 1, CURRENCY_NAMES[i]);
 }
 
+// Converts an amount between any two currencies through PHP.
 double convert(double amount, int from, int to)
 {
     return amount * rates[from] / rates[to];
 }
 
+// Compares two names ignoring uppercase/lowercase. Returns 1 if they match.
 int sameName(const char *a, const char *b)
 {
     while (*a && *b) {
@@ -119,6 +129,7 @@ int sameName(const char *a, const char *b)
     return *a == *b;
 }
 
+// Returns 1 if any registered account already has this name (any case).
 int nameTaken(Account accounts[], int count, const char *name)
 {
     int i;
@@ -128,6 +139,7 @@ int nameTaken(Account accounts[], int count, const char *name)
     return 0;
 }
 
+// Returns the index of the account with this name, or -1 if none.
 int findAccount(Account accounts[], int count, const char *name)
 {
     int i;
@@ -137,6 +149,7 @@ int findAccount(Account accounts[], int count, const char *name)
     return -1;
 }
 
+// Asks for an account name until an existing one is entered. Returns NULL only if no accounts exist.
 Account *selectAccount(Account accounts[], int count)
 {
     char name[MAX_NAME];
@@ -147,34 +160,39 @@ Account *selectAccount(Account accounts[], int count)
         return NULL;
     }
 
-    printf("Account Name: ");
-    scanf(" %99[^\n]", name);
-    clearInput();
+    while (1) {
+        printf("Account Name: ");
+        scanf(" %99[^\n]", name);
+        clearInput();
 
-    index = findAccount(accounts, count, name);
-    if (index == -1) {
-        printf("Account not found.\n");
-        return NULL;
+        index = findAccount(accounts, count, name);
+        if (index != -1)
+            return &accounts[index];
+
+        printf("Name does not exist. Please Enter an existing user.\n");
     }
-    return &accounts[index];
 }
 
+// Shows the account's current balance and currency
 void printAccountHeader(Account *acc)
 {
     printf("Current Balance: %.2f\n", acc->balance);
     printf("Currency: PHP\n");
 }
 
-double readAmountInCurrency(const char *msg)
+// Asks which currency the transaction is in. Returns its index (0 = PHP).
+int readTransactionCurrency(void)
 {
-    int currency;
+    printCurrencyList();
+    return readChoice("Transaction Currency: ", 1, NUM_CURRENCY) - 1;
+}
+
+// Reads an amount in the given currency and returns its PHP equivalent.
+double readAmountInPHP(const char *msg, int currency)
+{
     double amount, inPHP;
 
-    printCurrencyList();
-    currency = readChoice("Transaction Currency: ", 1, NUM_CURRENCY) - 1;
-
     amount = readPositiveAmount(msg);
-
     if (currency == PHP)
         return amount;
 
@@ -183,6 +201,8 @@ double readAmountInCurrency(const char *msg)
     return inPHP;
 }
 
+
+// Adds a new account with a unique name and the starting balance
 void registerAccount(Account accounts[], int *count)
 {
     char newName[MAX_NAME];
@@ -193,13 +213,15 @@ void registerAccount(Account accounts[], int *count)
         return;
     }
 
-    printf("Account Name: ");
-    scanf(" %99[^\n]", newName);
-    clearInput();
+    while (1) {
+        printf("Account Name: ");
+        scanf(" %99[^\n]", newName);
+        clearInput();
 
-    if (nameTaken(accounts, *count, newName)) {
+        if (!nameTaken(accounts, *count, newName))
+            break;
+
         printf("An account with this name is already registered.\n");
-        return;
     }
 
     strcpy(accounts[*count].name, newName);
@@ -207,6 +229,7 @@ void registerAccount(Account accounts[], int *count)
     (*count)++;
 }
 
+// Adds money to an existing account
 void deposit(Account accounts[], int count)
 {
     Account *acc;
@@ -219,15 +242,17 @@ void deposit(Account accounts[], int count)
 
     printAccountHeader(acc);
     printf("\n");
-    amount = readAmountInCurrency("Deposit Amount: ");
+    amount = readAmountInPHP("Deposit Amount: ", readTransactionCurrency());
 
     acc->balance = acc->balance + amount;
     printf("Updated Balance: %.2f\n", acc->balance);
 }
 
+// Takes money out of an existing account if the balance allows it
 void withdraw(Account accounts[], int count)
 {
     Account *acc;
+    int currency;
     double amount;
 
     printf("Withdraw Amount\n");
@@ -237,18 +262,25 @@ void withdraw(Account accounts[], int count)
 
     printAccountHeader(acc);
     printf("\n");
-    amount = readAmountInCurrency("Withdraw Amount: ");
 
-    if (amount > acc->balance) {
-        printf("Insufficient balance. Withdrawal cancelled.\n");
-        printf("Updated Balance: %.2f\n", acc->balance);
+    if (acc->balance <= 0) {
+        printf("No balance available to withdraw.\n");
         return;
+    }
+
+    while (1) {
+        currency = readTransactionCurrency();
+        amount = readAmountInPHP("Withdraw Amount: ", currency);
+        if (amount <= acc->balance)
+            break;
+        printf("Insufficient balance. Please enter a smaller amount.\n");
     }
 
     acc->balance = acc->balance - amount;
     printf("Updated Balance: %.2f\n", acc->balance);
 }
 
+// Converts an amount from one currency to another
 void currencyExchange(void)
 {
     int source, target;
@@ -271,6 +303,7 @@ void currencyExchange(void)
     } while (readYesNo("Convert another currency (Y/N)? "));
 }
 
+// Updates the exchange rate of a foreign currency
 void recordExchangeRate(void)
 {
     int currency;
@@ -279,15 +312,17 @@ void recordExchangeRate(void)
     printCurrencyList();
     printf("\n");
 
-    currency = readChoice("Select Foreign Currency: ", 1, NUM_CURRENCY) - 1;
-    if (currency == PHP) {
-        printf("PHP is the base currency; its rate is fixed at 1.00.\n");
-        return;
+    while (1) {
+        currency = readChoice("Select Foreign Currency: ", 1, NUM_CURRENCY) - 1;
+        if (currency != PHP)
+            break;
+        printf("PHP is the base currency; its rate is fixed at 1.00. Please select another currency.\n");
     }
 
     rates[currency] = readPositiveAmount("Exchange Rate: ");
 }
 
+// Lists the projected daily interest and balance for a number of days
 void showInterest(Account accounts[], int count)
 {
     Account *acc;
@@ -307,6 +342,7 @@ void showInterest(Account accounts[], int count)
     balance = acc->balance;
     printf("\nDay | Interest | Balance |\n");
     for (day = 1; day <= days; day++) {
+        // round interest to centavos before adding, like the figure (0.14/day)
         interest = (int) (balance * (INTEREST_RATE / 365) * 100 + 0.5) / 100.0;
         balance = balance + interest;
         printf("%-3d | %-8.2f | %-7.2f |\n", day, interest, balance);
@@ -314,6 +350,7 @@ void showInterest(Account accounts[], int count)
 }
 
 
+// Shows the main menu and runs the chosen transaction until the user exits
 int main(void)
 {
     Account accounts[MAX_ACCOUNTS];
