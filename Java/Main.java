@@ -6,6 +6,11 @@ Paradigm(s): Object-oriented
 ********************
  */
 
+/*
+Compilation instructions: 
+1. Download Main.java, User.Java, UserDB.java
+2. Run: java Main.java in command prompt
+*/
 import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.HashMap;
