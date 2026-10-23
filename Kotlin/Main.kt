@@ -4,6 +4,9 @@
 // Paradigm(s): Imperative, Object-Oriented
 // ********************
 
+// Compile command: kotlinc Main.kt User.kt UserDB.kt ExchangeRateSet.kt -include-runtime -d Main.jar
+// Run command:     java -jar Main.jar
+
 fun printMainMenu(){
     println("Select Transaction:")
     println("[1] Register Account Name")
