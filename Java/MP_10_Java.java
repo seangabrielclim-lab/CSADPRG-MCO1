@@ -6,6 +6,12 @@ Paradigm(s): Object-oriented
 ********************
  */
 
+/*
+To run in cmd type:
+User.java, UserDB.java, MP_10_Java.java should be in the same directory
+java MP_10_java.java
+*/
+
 import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.HashMap;
