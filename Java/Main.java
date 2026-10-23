@@ -462,7 +462,7 @@ public class Main {
 
             //exits if the users inputs N
             if (back.equalsIgnoreCase("N")) {
-                System.out.printf("Thank you for banking with us!\n");
+                System.out.printf("Thank you for banking with us!");
                 exited = true;
             }
             System.out.println();
