@@ -4,8 +4,8 @@
 // Paradigm(s): Imperative, Object-Oriented
 // ********************
 
-// Compile command: kotlinc Main.kt User.kt UserDB.kt ExchangeRateSet.kt -include-runtime -d Main.jar
-// Run command:     java -jar Main.jar
+// Compile command: kotlinc MP_10_Kotlin.kt User.kt UserDB.kt ExchangeRateSet.kt -include-runtime -d MP_10_Kotlin.jar
+// Run command:     java -jar MP_10_Kotlin.jar
 
 fun printMainMenu(){
     println("Select Transaction:")
