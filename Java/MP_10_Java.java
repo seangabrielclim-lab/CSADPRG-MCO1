@@ -9,7 +9,8 @@ Paradigm(s): Object-oriented
 /*
 To run in cmd type:
 
-java MP_10_Java.java
+javac MP_10_Java.java
+javac MP_10_Java
 
 Note: User.java, UserDB.java, MP_10_Java.java should be in the same directory
 */
