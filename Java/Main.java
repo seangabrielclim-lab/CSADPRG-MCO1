@@ -6,11 +6,6 @@ Paradigm(s): Object-oriented
 ********************
  */
 
-/*
-Compilation instructions: 
-1. Download Main.java, User.Java, UserDB.java
-2. Run: java Main.java in command prompt
-*/
 import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.HashMap;
@@ -35,8 +30,8 @@ public class Main {
         Currencies.put(6, 9.00); // cny
 
         //test user
-        User test = new User("n");
-        userDB.addUser(test);
+        //User test = new User("n");
+        //userDB.addUser(test);
 
         //main loop
         while (!exited) {
@@ -85,6 +80,7 @@ public class Main {
                             System.out.println("An account with this name is already registered.");
                         }
                     }
+                    System.out.println();
                     break;
                 case 2:
                     System.out.println("Deposit Amount");
@@ -337,7 +333,7 @@ public class Main {
                                 valContinuation = true;
                             }
                             else{
-                                System.out.println("Please enter Y or N.\n");
+                                System.out.println("Please enter Y or N.");
                             }
                         }
 
@@ -394,6 +390,7 @@ public class Main {
                             sc.nextLine();
                         }
                     }
+                    System.out.println();
                     break;
                 case 6:
                     System.out.println("Show Interest Amount");
@@ -439,7 +436,7 @@ public class Main {
                                         }
                                         System.out.println();
                                     } catch (InputMismatchException | IllegalArgumentException e) {
-                                        System.out.println("Invalid choice. Enter a number from 1 to 365000.\n");
+                                        System.out.println("Invalid choice. Enter a number from 1 to 365000.");
                                         sc.nextLine();
                                     }
                                 }
