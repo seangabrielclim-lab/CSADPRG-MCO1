@@ -6,18 +6,8 @@ Paradigm(s): Object-oriented
 ********************
  */
 
-/*
-To run in cmd type:
-
-javac MP_10_Java.java
-java MP_10_Java
-
-Note: User.java, UserDB.java, MP_10_Java.java should be in the same directory
-*/
-
-import java.util.InputMismatchException;
-import java.util.Scanner;
-import java.util.HashMap;
+import java.util.*;
+import java.util.ArrayList;
 
 public class MP_10_Java {
     private static Scanner sc = new Scanner(System.in);
@@ -29,18 +19,24 @@ public class MP_10_Java {
         String back = "";
         UserDB userDB = new UserDB();
 
-        //hash map for currencies
-        HashMap<Integer, Double> Currencies = new HashMap();
-        Currencies.put(1, 1.00); // php
-        Currencies.put(2, 62.00); // usd
-        Currencies.put(3, 0.40); // jpy
-        Currencies.put(4, 84.00); // gbp
-        Currencies.put(5, 72.00); // eur
-        Currencies.put(6, 9.00); // cny
+        //hash map for currencies with labels
+        ArrayList<Object> test = new ArrayList<>(List.of(1.00, "PHP", 62.00, "USD", 0.40, "JPY", 84.00, "GBP", 72.00, "EUR", 9.00, "CNY"));
+        HashMap<Integer, List<Object>> Currencies = new HashMap<>();
+        Currencies.put(1, test.subList(0, 2)); // php
+        Currencies.put(2, test.subList(2, 4)); // usd
+        Currencies.put(3, test.subList(4, 6)); // jpy
+        Currencies.put(4, test.subList(6, 8)); // gbp
+        Currencies.put(5, test.subList(8, 10)); // eur
+        Currencies.put(6, test.subList(10, 12)); // cny
+
+        //System.out.println(Currencies.get(6).get(0));
+
+        //loading of data
+        userDB.loadUsers();
+        //userDB.displayUsers();
 
         //test user
-        //User test = new User("n");
-        //userDB.addUser(test);
+        //userDB.addUser("Sean", 7000);
 
         //main loop
         while (!exited) {
@@ -51,6 +47,7 @@ public class MP_10_Java {
             System.out.println("[4] Currency Exchange");
             System.out.println("[5] Record Exchange Rates");
             System.out.println("[6] Show Interest Amount");
+            System.out.println("[7] Generate Reports");
             System.out.println();
 
             boolean validChoice = false;
@@ -80,10 +77,27 @@ public class MP_10_Java {
                         System.out.println("Register Account Name");
                         System.out.print("Account Name: ");
                         String name = sc.nextLine();
+                        //gonna need to fix account validation
                         User check = userDB.findUserByName(name);
                         if (check == null) {
-                            User newUser = new User(name);
-                            userDB.addUser(newUser);
+                            boolean valInitAmount = false;
+                            while (!valInitAmount) {
+                                try{
+                                    System.out.print("Initial Deposit: ");
+                                    double deposit = sc.nextDouble();
+                                    if (!(deposit > 0) || Double.isInfinite(deposit)) {
+                                        throw new IllegalArgumentException("*** Error Invalid Input ***");
+                                    }else{
+                                        sc.nextLine();
+                                        userDB.addNewUser(name, deposit);
+                                        System.out.println("Account Created Successfully!");
+                                        valInitAmount = true;
+                                    }
+                                }catch(InputMismatchException | IllegalArgumentException e){
+                                    System.out.println("Invalid amount. Enter a number greater than 0.");
+                                    sc.nextLine();
+                                }
+                            }
                             done1 = true;
                         } else {
                             System.out.println("An account with this name is already registered.");
@@ -154,9 +168,10 @@ public class MP_10_Java {
                                         throw new IllegalArgumentException("*** Error Invalid Input ***");
                                     }else{
                                         sc.nextLine();
-                                        deposit = deposit*Currencies.get(depCurrency);
-                                        userDB.depositFunds(d, deposit);
-                                        System.out.printf("Equivalent in PHP (rate %.2f): %.2f\n", Currencies.get(depCurrency), deposit);
+                                        double n = (double)Currencies.get(depCurrency).get(0);
+                                        deposit = deposit*n;
+                                        userDB.depositFunds(d, deposit, (String)Currencies.get(depCurrency).get(1));
+                                        System.out.printf("Equivalent in PHP (rate %.2f): %.2f\n", n, deposit);
                                         System.out.printf("Updated Balance: %.2f\n\n", d.getAmount());
                                         valDepAmount = true;
                                         done2 = true;
@@ -227,7 +242,8 @@ public class MP_10_Java {
                                 try{
                                     System.out.print("Withdraw Amount: ");
                                     double withdraw = sc.nextDouble();
-                                    withdraw = withdraw*Currencies.get(withCurrency);
+                                    double m = (double)Currencies.get(withCurrency).get(0);
+                                    withdraw = withdraw*m;
                                     if (!(withdraw > 0) || Double.isInfinite(withdraw)) {
                                         throw new IllegalArgumentException("*** Error Invalid Input ***");
                                     }
@@ -236,8 +252,8 @@ public class MP_10_Java {
                                     }
                                     else{
                                         sc.nextLine();
-                                        userDB.withdrawFunds(w, withdraw);
-                                        System.out.printf("Equivalent in PHP (rate %.2f): %.2f\n", Currencies.get(withCurrency), withdraw);
+                                        userDB.withdrawFunds(w, withdraw, (String)Currencies.get(withCurrency).get(1));
+                                        System.out.printf("Equivalent in PHP (rate %.2f): %.2f\n", m, withdraw);
                                         System.out.printf("Updated Amount: %.2f\n\n", w.getAmount());
                                         valWitAmount = true;
                                         done3 = true;
@@ -294,7 +310,7 @@ public class MP_10_Java {
                                 if (!(sourceAmount > 0) || Double.isInfinite(sourceAmount)) {
                                     throw new IllegalArgumentException("*** Error Invalid Input ***");
                                 } else {
-                                    sourceAmount = sourceAmount * Currencies.get(scOption);
+                                    sourceAmount = sourceAmount * (double)Currencies.get(scOption).getFirst();
                                     valSourceAmount = true;
                                     sc.nextLine();
                                 }
@@ -322,7 +338,7 @@ public class MP_10_Java {
                                 if (!Currencies.containsKey(ecOption)) {
                                     throw new IllegalArgumentException("*** Error Invalid Input ***");
                                 } else {
-                                    double ecAmount = sourceAmount / Currencies.get(ecOption);
+                                    double ecAmount = sourceAmount / (double)Currencies.get(ecOption).getFirst();
                                     System.out.printf("Exchange Amount: %.2f\n\n", ecAmount);
                                     valDestCurrency = true;
                                     sc.nextLine();
@@ -391,7 +407,8 @@ public class MP_10_Java {
                             if (!(fRate > 0) || Double.isInfinite(fRate)) {
                                 throw new IllegalArgumentException("*** Error Invalid Input ***");
                             }
-                            Currencies.replace(fCurrency, fRate);
+                            Currencies.replace(fCurrency, List.of(fRate, Currencies.get(fCurrency).get(1)));
+                            //System.out.println("Current Rate: " + Currencies.get(fCurrency));
                             sc.nextLine();
                             valRate = true;
                         }catch (InputMismatchException | IllegalArgumentException e) {
@@ -473,7 +490,7 @@ public class MP_10_Java {
 
             //exits if the users inputs N
             if (back.equalsIgnoreCase("N")) {
-                System.out.printf("Thank you for banking with us!");
+                System.out.print("Thank you for banking with us!");
                 exited = true;
             }
             System.out.println();

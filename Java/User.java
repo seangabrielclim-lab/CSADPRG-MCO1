@@ -1,24 +1,15 @@
-/*
-********************
-Last names: Chan, Cheng, Jugno, Lim
-Language: Java
-Paradigm(s): Object-oriented
-********************
- */
-
 public class User {
-    private static int nextUserID = 0;
     private String name;
     private double amount;
     private static double rate = 0.05f;
     private String currency;
-    private int id;
+    private long id;
 
-    public User(String name) {
+    public User(String name, double amount, long id) {
         this.name = name;
-        this.amount = 1000.00;
+        this.amount = amount;
         this.currency = "PHP";
-        id = this.nextUserID++;
+        this.id = id;
     }
 
     public String getName() {
@@ -35,6 +26,10 @@ public class User {
 
     public String getCurrency() {
         return currency;
+    }
+
+    public long getId() {
+        return id;
     }
 
     public void setAmount(double amount) {
