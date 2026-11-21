@@ -39,10 +39,8 @@ public class Reader {
                     }
                 } catch(DateTimeParseException | NumberFormatException | ArrayIndexOutOfBoundsException e){
                     br.readLine();
-                    //System.out.println("Skipped Line");
                 }
             }
-            //System.out.println("Poop: " + transactions.size());
         } catch (IOException e) {
             System.out.println("Error reading file");
         }
