@@ -1,7 +1,10 @@
+import java.time.YearMonth;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.Month;
 
 public class UserDB {
     Scanner sc = new Scanner(System.in);
@@ -71,7 +74,7 @@ public class UserDB {
         }
         else{
             System.out.println("===LIST OF USERS===");
-            for(int i = 0; i < getTransactions().size(); i++){
+            for(int i = 0; i < getUsers().size(); i++){
                 System.out.println(i+1 + ". " + getUsers().get(i).getName() + " ID: " + getUsers().get(i).getId() + " Amount: " + getUsers().get(i).getAmount());
             }
         }
@@ -103,7 +106,7 @@ public class UserDB {
 
     public void withdrawFunds(User user, double amount, String currency){
         user.setAmount(user.getAmount()-amount);
-        this.addNewTransaction(user, currency, amount, "withdraw");
+        this.addNewTransaction(user, currency, amount, "withdrawal");
     }
 
     public boolean interestFunds(User user, int days, double rate, double[] amounts){
@@ -120,5 +123,121 @@ public class UserDB {
             }
             return true;
         }
+    }
+
+    public void generateReport1(){
+        LocalDate today = getTransactions().getLast().getDate();
+        LocalDate firstDay = today.withDayOfMonth(1);
+        int sCtr = 0;
+       for(int i = 0; i < getUsers().size(); i++){
+           User u = getUsers().get(i);
+           double mostRecentAmount = 0;
+           double sum = 0;
+           LocalDate mostRecentDate = firstDay;
+           LocalDate oldestDate = today;
+
+           for(int j = 0; j < getTransactions().size(); j++){
+               Transaction t = getTransactions().get(j);
+               YearMonth ym = YearMonth.from(t.getDate());
+
+               if(t.getDate().isBefore(oldestDate) && t.getAccountName().equalsIgnoreCase(u.getName())){
+                   oldestDate = t.getDate();
+               }
+               //searches for the last transaction before current month
+               if(ym.isBefore(YearMonth.from(today)) && t.getAccountName().equalsIgnoreCase(u.getName())){
+                   mostRecentAmount = t.getCurrentBalance();
+                   mostRecentDate = t.getDate();
+               }
+               else if(t.getDate().isEqual(firstDay) && t.getAccountName().equalsIgnoreCase(u.getName())){
+                   mostRecentAmount = t.getCurrentBalance();
+                   mostRecentDate = t.getDate();
+               }
+               else if(ym.compareTo(YearMonth.from(today)) == 0 && t.getAccountName().equalsIgnoreCase(u.getName()) && mostRecentDate.isBefore(firstDay)){
+                   mostRecentDate = firstDay;
+               }
+               else if(t.getDate().isEqual(mostRecentDate) && t.getAccountName().equalsIgnoreCase(u.getName())){
+                   mostRecentAmount = t.getCurrentBalance();
+               }
+
+               //sums the values
+               if(t.getDate().isAfter(mostRecentDate) && t.getAccountName().equalsIgnoreCase(u.getName())){
+                   long daysBetween = ChronoUnit.DAYS.between(mostRecentDate, t.getDate());
+                   sum += mostRecentAmount* daysBetween;
+                   mostRecentDate = t.getDate();
+                   mostRecentAmount = t.getCurrentBalance();
+               }
+           }
+
+           u.setAccountAge(ChronoUnit.DAYS.between(oldestDate, today));
+           if(!mostRecentDate.isAfter(YearMonth.from(today).atEndOfMonth())){
+               long last = ChronoUnit.DAYS.between(mostRecentDate, YearMonth.from(today).atEndOfMonth());
+               sum += mostRecentAmount* (last+1);
+           }
+           double average = sum / today.lengthOfMonth();
+           u.setAdb(average);
+
+           if(average >= 100000.00 && average < 500000.00){
+               getUsers().get(i).setTier("silver");
+               sCtr++;
+           }
+           else if(average >= 500000.00 && average < 1000000.00){
+               getUsers().get(i).setTier("gold");
+           }
+           else if(average >= 1000000.00){
+               getUsers().get(i).setTier("platinum");
+           }
+           else{
+               getUsers().get(i).setTier(null);
+           }
+       }
+
+        Writer w = new Writer();
+        w.writeReport1(getUsers());
+    }
+
+    public void generateReport2(){
+        int n = getUsers().size();
+        String[] names = new String[n];
+        double[] amounts = new double[n];
+        double[] interests = new double[n];
+
+        for(int i = 0; i < n; i++){
+            double[] amts = new double[30];
+            User u = getUsers().get(i);
+            if(u.getAmount() >= 10000){
+                interestFunds(u, 30, u.getRate(), amts);
+                names[i] = u.getName();
+                amounts[i] = u.getAmount();
+                interests[i] = amts[29] - u.getAmount();
+            }
+        }
+
+        for (int i = 0; i < n - 1; i++) {
+            int minIndex = i;
+
+            for (int j = i + 1; j < n; j++) {
+                if (interests[minIndex] < interests[j]) {
+                    minIndex = j;
+                }
+            }
+
+            double tempAmount = amounts[minIndex];
+            double tempInterest = interests[minIndex];
+            String tempName = names[minIndex];
+
+            amounts[minIndex] = amounts[i];
+            interests[minIndex] = interests[i];
+            names[minIndex] = names[i];
+
+            amounts[i] = tempAmount;
+            interests[i] = tempInterest;
+            names[i] = tempName;
+        }
+
+        for(int i = 0; i < 2; i++){
+            System.out.printf("%s | %.2f | %.2f\n", names[i], amounts[i], interests[i]);
+        }
+        Writer w = new Writer();
+        w.writeReport2(names, amounts, interests, n);
     }
 }

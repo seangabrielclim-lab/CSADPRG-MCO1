@@ -8,6 +8,7 @@ Paradigm(s): Object-oriented
 
 import java.util.*;
 import java.util.ArrayList;
+import java.time.LocalDate;
 
 public class MP_10_Java {
     private static Scanner sc = new Scanner(System.in);
@@ -29,14 +30,7 @@ public class MP_10_Java {
         Currencies.put(5, test.subList(8, 10)); // eur
         Currencies.put(6, test.subList(10, 12)); // cny
 
-        //System.out.println(Currencies.get(6).get(0));
-
-        //loading of data
-        userDB.loadUsers();
-        //userDB.displayUsers();
-
-        //test user
-        //userDB.addUser("Sean", 7000);
+        //userDB.loadUsers();
 
         //main loop
         while (!exited) {
@@ -56,14 +50,14 @@ public class MP_10_Java {
                     System.out.print("Choice: ");
                     choice = sc.nextInt();
                     sc.nextLine();
-                    if(choice < 1 || choice > 6) {
-                        System.out.println("Invalid choice. Enter a number from 1 to 6.");
+                    if(choice < 1 || choice > 7) {
+                        System.out.println("Invalid choice. Enter a number from 1 to 7.");
                     }
                     else{
                         validChoice = true;
                     }
                 }catch (InputMismatchException e){
-                    System.out.println("Invalid choice. Enter a number from 1 to 6.");
+                    System.out.println("Invalid choice. Enter a number from 1 to 7.");
                     sc.nextLine();
                 }
             }
@@ -470,8 +464,54 @@ public class MP_10_Java {
                         }
                     }
                     break;
+                case 7:
+                    boolean done7 = false;
+                    while (!done7) {
+                        System.out.println("Generate Reports");
+                        System.out.println("[1] Load the file");
+                        System.out.println("[2] Generate Reports");
+                        try{
+                            System.out.print("Enter Choice: ");
+                            int reportChoice = sc.nextInt();
+                            if (!(reportChoice > 0)) {
+                                throw new IllegalArgumentException("*** Error Invalid Input ***");
+                            }
+                            else if(reportChoice == 1) {
+                                userDB.loadUsers();
+                                userDB.displayUsers();
+                                System.out.println("Processing dataset... (" + userDB.getTransactions().size() + " rows loaded, " + userDB.getTransactions().size() + " filtered for PHP currency)");
+                                done7 = true;
+                            }
+                            else if(reportChoice == 2) {
+                                userDB.generateReport1();
+                                System.out.println("\nGenerating reports...");
+                                System.out.println("Outputs saved to individual files...");
+
+                                System.out.println("\nReport 1: Banking Privilege Tiers");
+                                for (int i = 0 ; i < 2; i++) {
+                                    User u = userDB.getUsers().get(i);
+                                    System.out.println(u.getName() + " | " + u.getAccountAge() + " | " + u.getAmount() + " | " + u.getAdb() + " | " + u.getTier());
+                                }
+                                System.out.println("Outputs saved to individual files...");
+                                System.out.println("\n(Full table exported to report1_banking_privilege_tiers.csv)");
+
+                                System.out.println("\nReport 2: Interest Expense Projection");
+                                userDB.generateReport2();
+                                System.out.println("\n(Full table exported to report1_banking_privilege_tiers.csv)");
+                                done7 = true;
+                            }
+                            else{
+                                System.out.println("Invalid choice. Enter a number from 1 to 2.");
+                            }
+                            sc.nextLine();
+                        }catch (InputMismatchException | IllegalArgumentException e) {
+                            System.out.println("Invalid amount. Enter a number greater than 0.");
+                            sc.nextLine();
+                        }
+                    }
+                    break;
                 default:
-                    System.out.println("Invalid choice. Enter a number from 1 to 6.");
+                    System.out.println("Invalid choice. Enter a number from 1 to 7.");
                     break;
             }
 
