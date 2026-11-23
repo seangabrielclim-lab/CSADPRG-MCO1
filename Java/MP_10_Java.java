@@ -504,7 +504,7 @@ public class MP_10_Java {
                                 System.out.println("\n(Full table exported to report3_suspicious_client_behavior.csv)");
 
                                 System.out.println("\nSummary State (summary.json):");
-                                userDB.generateReport3();
+                                userDB.generateSummary();
                                 done7 = true;
                             }
                             else{

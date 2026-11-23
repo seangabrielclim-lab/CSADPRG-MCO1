@@ -320,6 +320,33 @@ public class UserDB {
     }
 
     public void generateSummary(){
+        int count = getTransactions().size();
+        double dep = 0;
+        double withdrawal = 0;
 
+        for (int i = 0; i < count; i++) {
+            Transaction t = getTransactions().get(i);
+            if(t.getType().equals("deposit")){
+                dep+=t.getAmount();
+            }
+            else if(t.getType().equals("withdrawal")){
+                withdrawal+=t.getAmount();
+            }
+        }
+
+        double totalInterest =((dep-withdrawal) * (0.05/365))*30;
+        String json = """
+        {
+            "total_accounts": "%d",
+            "total_deposits": %.2f,
+            "total_withdrawals": %.2f,
+            "total_balance": %.2f,
+            "total_interest_expense": %.2f
+        }
+        """.formatted(count, dep, withdrawal, (dep - withdrawal), totalInterest);
+
+        System.out.println(json);
+        Writer w = new Writer();
+        w.writeSummary(json);
     }
 }

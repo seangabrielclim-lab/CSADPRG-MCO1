@@ -113,8 +113,15 @@ public class Writer {
         }
     }
 
-    public void writeSummary(){
-
+    public void writeSummary(String json){
+        try{
+            FileWriter summaryWriter = new FileWriter("summary.json");
+            summaryWriter.write(json);
+            summaryWriter.close();
+        }catch(IOException e){
+            System.out.println("Error writing to file.");
+            e.printStackTrace();
+        }
     }
 }
 
