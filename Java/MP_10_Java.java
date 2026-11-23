@@ -497,7 +497,14 @@ public class MP_10_Java {
 
                                 System.out.println("\nReport 2: Interest Expense Projection");
                                 userDB.generateReport2();
-                                System.out.println("\n(Full table exported to report1_banking_privilege_tiers.csv)");
+                                System.out.println("\n(Full table exported to report2_interest_expense_projection.csv)");
+
+                                System.out.println("\nReport 3: Suspicious Client Behavior");
+                                userDB.generateReport3();
+                                System.out.println("\n(Full table exported to report3_suspicious_client_behavior.csv)");
+
+                                System.out.println("\nSummary State (summary.json):");
+                                userDB.generateReport3();
                                 done7 = true;
                             }
                             else{

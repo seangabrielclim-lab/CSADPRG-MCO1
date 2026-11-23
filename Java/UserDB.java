@@ -1,10 +1,8 @@
 import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.Month;
 
 public class UserDB {
     Scanner sc = new Scanner(System.in);
@@ -239,5 +237,89 @@ public class UserDB {
         }
         Writer w = new Writer();
         w.writeReport2(names, amounts, interests, n);
+    }
+
+    public void generateReport3(){
+       HashMap<String, double[]> balances = new HashMap<>();
+
+       for(int i = 0; i < getTransactions().size(); i++){
+           Transaction t = getTransactions().get(i);
+           String entry = t.getAccountName() + " : " + t.getDate().toString();
+           if(!(balances.containsKey(entry))){
+                if(t.getType().equals("deposit")){
+                    balances.put(entry, new double[]{t.getAmount(), 0, 1});
+                }
+                else if(t.getType().equals("withdrawal")){
+                    balances.put(entry, new double[]{0, t.getAmount(), 0});
+                }
+
+           }
+           else{
+               if(t.getType().equals("deposit")){
+                   double count = balances.get(entry)[2];
+                   double depositAmount = balances.get(entry)[0];
+                   double withdrawalAmount = balances.get(entry)[1];
+                   balances.put(entry, new double[]{t.getAmount() + depositAmount, withdrawalAmount, count + 1});
+               }
+               else if(t.getType().equals("withdrawal")){
+                   double count = balances.get(entry)[2];
+                   double depositAmount = balances.get(entry)[0];
+                   double withdrawalAmount = balances.get(entry)[1];
+                   balances.put(entry, new double[]{depositAmount, t.getAmount() + withdrawalAmount, count});
+               }
+           }
+
+           double count = balances.get(entry)[2];
+           double depositAmount = balances.get(entry)[0];
+           double withdrawalAmount = balances.get(entry)[1];
+           double turnoverVelocity = 0;
+
+           if(depositAmount > 0){
+               turnoverVelocity = (withdrawalAmount / depositAmount) * 100;
+           }
+
+           if(withdrawalAmount >= 500000 || turnoverVelocity >= 90){
+               double[] a = {depositAmount, withdrawalAmount, count, 1, turnoverVelocity};
+               balances.put(entry, a);
+               //System.out.printf("%s : %f | %f | %f | %f\n", entry, balances.get(entry)[0], balances.get(entry)[1], balances.get(entry)[2], balances.get(entry)[3] );
+           }
+           else{
+               double[] a = {depositAmount, withdrawalAmount, count, 0, turnoverVelocity};
+               balances.put(entry, a);
+               //System.out.printf("%s : %f | %f | %f | %f\n", entry, balances.get(entry)[0], balances.get(entry)[1], balances.get(entry)[2], balances.get(entry)[3] );
+           }
+       }
+
+       ArrayList<String[]> sortedBalances = new ArrayList<>();
+       balances.forEach((entry, amount) -> {
+           String[] nameDate = entry.split(":");
+           String name = nameDate[0];
+           String date = nameDate[1];
+           String count = String.format("%.0f", amount[2]);
+           String turnover = String.format("%.2f", amount[4]);
+           String risk = "";
+           if(amount[3] > 0){
+               risk = "suspicious";
+           }
+           else{
+               risk = "normal";
+           }
+           sortedBalances.add(new String[]{name, date, String.valueOf(amount[1]), count, String.valueOf(amount[0]), turnover, risk});
+       });
+       sortedBalances.sort(Comparator.comparing(row -> row[0]));
+       sortedBalances.sort(Comparator.comparing(row -> row[1]));
+       sortedBalances.sort(Comparator.comparing(row -> row[6], Comparator.reverseOrder()));
+
+
+        for(int i = 0; i < 2; i++){
+            String[] sample = sortedBalances.get(i);
+            System.out.printf("%s | %s | %s | %s | %s | %s | %s\n", sample[0], sample[1], sample[2], sample[3], sample[4], sample[5], sample[6]);
+        }
+       Writer w = new Writer();
+       w.writeReport3(sortedBalances);
+    }
+
+    public void generateSummary(){
+
     }
 }

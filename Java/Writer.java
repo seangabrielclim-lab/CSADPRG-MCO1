@@ -88,5 +88,33 @@ public class Writer {
             e.printStackTrace();
         }
     }
+
+    public void writeReport3(ArrayList<String[]> sortedBalances) {
+        try{
+            FileWriter report3 = new FileWriter("report3_suspicious_client_behavior.csv");
+            String header = "AccountName" + "," + "Date" + "," + "TotalWithdrawalAmounts" + "," + "NumberOfDeposits" + "," + "TotalDepositAmounts" + "," + "TurnoverVelocity" + "," + "RiskFlagLevel";
+            report3.write(header + System.lineSeparator());
+            for(int i = 0; i < sortedBalances.size(); i++){
+                String name = sortedBalances.get(i)[0];
+                String date = sortedBalances.get(i)[1];
+                String withdraw = sortedBalances.get(i)[2];
+                String counter = sortedBalances.get(i)[3];
+                String deposit = sortedBalances.get(i)[4];
+                String turnover = sortedBalances.get(i)[5];
+                String risk = sortedBalances.get(i)[6];
+
+                String line = name + "," + date + "," + withdraw + "," + counter + "," + deposit + "," + turnover + "," + risk;
+                report3.write(line + System.lineSeparator());
+            }
+            report3.close();
+        }catch(IOException e){
+            System.out.println("Error writing to file.");
+            e.printStackTrace();
+        }
+    }
+
+    public void writeSummary(){
+
+    }
 }
 
