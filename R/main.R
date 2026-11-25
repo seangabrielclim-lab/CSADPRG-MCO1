@@ -4,11 +4,15 @@ suppressPackageStartupMessages({
 })
 options(pillar.width = Inf)
 
+print_log <- function(prompt, value){
+    cat(sprintf(prompt, value))
+}
+
 load_data <- function(path) {
     df <- read_csv(path, 
                     col_types = cols(.default = col_character()),
                     show_col_types = FALSE)
-    cat(sprintf("Total Rows Loaded: %d\n", nrow(df)))
+    print_log("Total Rows Loaded: %d\n", nrow(df))
 
     return (df)
 }
@@ -19,7 +23,7 @@ clean_data <- function(df){
                 account_name = trimws(account_name)) %>%
         filter(currency == "PHP")
     
-    cat(sprintf("Rows after filtering to PHP: %d\n", nrow(df)))
+    print_log("Rows after filtering to PHP: %d\n", nrow(df))
 
     df <- df %>%
         mutate(date = as.Date(trimws(date), format = "%d/%m/%Y"),
@@ -32,16 +36,16 @@ clean_data <- function(df){
     invalid_curr_bal <- sum(is.na(df$current_balance))
     invalid_type <- sum(!(df$type %in% c("deposit", "withdrawal")))
 
-    cat(sprintf("Total rows with invalid date: %d\n", invalid_dates))
-    cat(sprintf("Total rows with invalid amount: %d\n", invalid_amt))
-    cat(sprintf("Total rows with invalid current balance: %d\n", invalid_curr_bal))
-    cat(sprintf("Total rows with invalid type: %d\n", invalid_type))
+    print_log("Total rows with invalid date: %d\n", invalid_dates)
+    print_log("Total rows with invalid amount: %d\n", invalid_amt)
+    print_log("Total rows with invalid current balance: %d\n", invalid_curr_bal)
+    print_log("Total rows with invalid type: %d\n", invalid_type)
 
     df <- df %>% 
         filter(!is.na(account_name), !is.na(account_number), !is.na(date), !is.na(amount),
                 !is.na(current_balance), type %in% c("deposit", "withdrawal"))
 
-    cat(sprintf("Total rows after cleaning: %d\n", nrow(df)))
+    print_log("Total rows after cleaning: %d\n", nrow(df))
 
     return (df)
 }
