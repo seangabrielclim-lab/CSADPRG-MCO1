@@ -1,7 +1,7 @@
 public class User {
     private String name;
     private double amount;
-    private static double rate = 0.05f;
+    private static double rate = 0.05;
     private String currency;
     private long id;
     private String tier;

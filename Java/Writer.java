@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.time.YearMonth;
+import java.util.TreeMap;
 
 public class Writer {
     public void writeTransaction(Transaction t, User u) {
@@ -107,6 +109,29 @@ public class Writer {
                 report3.write(line + System.lineSeparator());
             }
             report3.close();
+        }catch(IOException e){
+            System.out.println("Error writing to file.");
+            e.printStackTrace();
+        }
+    }
+
+    public void writeReport4(TreeMap<YearMonth, Double> monthlyBalances) {
+        try{
+            FileWriter report4 = new FileWriter("report4_average_deposits_per_month.csv");
+            String header = "YearMonth" + "," + "AverageDeposit";
+            report4.write(header + System.lineSeparator());
+            monthlyBalances.forEach((key, v) -> {
+                String yearmonth = key.toString();
+                String formattedDeposit = String.format("%.2f", v);
+                String line = yearmonth + "," + formattedDeposit;
+                try{
+                    report4.write(line + System.lineSeparator());
+                }catch(IOException e){
+                    System.out.println("Error writing to file.");
+                    e.printStackTrace();
+                }
+            });
+            report4.close();
         }catch(IOException e){
             System.out.println("Error writing to file.");
             e.printStackTrace();

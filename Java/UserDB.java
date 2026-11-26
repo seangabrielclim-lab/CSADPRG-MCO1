@@ -8,12 +8,11 @@ public class UserDB {
     Scanner sc = new Scanner(System.in);
     private ArrayList<User> users = new ArrayList<User>();
     private ArrayList<Transaction> transactions = new ArrayList<>();
+    private ArrayList<Transaction> dup = new ArrayList<>();
     private long largestId;
 
     public UserDB(){
         users = new ArrayList<>();
-        Reader r = new Reader();
-        transactions = r.readData();
         largestId = 0;
     }
 
@@ -23,6 +22,9 @@ public class UserDB {
 
     public long getLargestId(){
         return largestId;
+    }
+    public ArrayList<Transaction> getSaveOrder(){
+        return dup;
     }
 
     public ArrayList<Transaction> getTransactions(){
@@ -34,8 +36,13 @@ public class UserDB {
     }
 
     public void loadUsers(){
-        for(int i = 0; i < getTransactions().size(); i++){
-            Transaction t = getTransactions().get(i);
+        Reader r = new Reader();
+        transactions = r.readData();
+        dup = new ArrayList<>(transactions);
+        transactions.sort(Comparator.comparing(Transaction::getDate).thenComparing(Transaction::getTime));
+
+        for(int i = 0; i < getSaveOrder().size(); i++){
+            Transaction t = getSaveOrder().get(i);
             String aName = t.getAccountName();
             double bAmount = t.getCurrentBalance();
             long id = t.getAccountNumber();
@@ -62,6 +69,8 @@ public class UserDB {
     public void addNewTransaction(User user, String currency, double amount, String type){
         Transaction t = new Transaction(user.getName(), user.getId(), LocalDate.now(), LocalTime.now(), currency, amount, type, user.getAmount());
         this.transactions.add(t);
+        this.dup.add(t);
+        transactions.sort(Comparator.comparing(Transaction::getDate).thenComparing(Transaction::getTime));
         Writer w = new Writer();
         w.writeTransaction(t, user);
     }
@@ -123,10 +132,10 @@ public class UserDB {
         }
     }
 
-    public void generateReport1(){
+    public int generateReport1(){
+        int n = 0;
         LocalDate today = getTransactions().getLast().getDate();
         LocalDate firstDay = today.withDayOfMonth(1);
-        int sCtr = 0;
        for(int i = 0; i < getUsers().size(); i++){
            User u = getUsers().get(i);
            double mostRecentAmount = 0;
@@ -176,13 +185,15 @@ public class UserDB {
 
            if(average >= 100000.00 && average < 500000.00){
                getUsers().get(i).setTier("silver");
-               sCtr++;
+               n++;
            }
            else if(average >= 500000.00 && average < 1000000.00){
                getUsers().get(i).setTier("gold");
+               n++;
            }
            else if(average >= 1000000.00){
                getUsers().get(i).setTier("platinum");
+               n++;
            }
            else{
                getUsers().get(i).setTier(null);
@@ -191,10 +202,13 @@ public class UserDB {
 
         Writer w = new Writer();
         w.writeReport1(getUsers());
+
+        return n;
     }
 
     public void generateReport2(){
         int n = getUsers().size();
+        int m = 0;
         String[] names = new String[n];
         double[] amounts = new double[n];
         double[] interests = new double[n];
@@ -204,16 +218,17 @@ public class UserDB {
             User u = getUsers().get(i);
             if(u.getAmount() >= 10000){
                 interestFunds(u, 30, u.getRate(), amts);
-                names[i] = u.getName();
-                amounts[i] = u.getAmount();
-                interests[i] = amts[29] - u.getAmount();
+                names[m] = u.getName();
+                amounts[m] = u.getAmount();
+                interests[m] = amts[29] - u.getAmount();
+                m++;
             }
         }
 
-        for (int i = 0; i < n - 1; i++) {
+        for (int i = 0; i < m - 1; i++) {
             int minIndex = i;
 
-            for (int j = i + 1; j < n; j++) {
+            for (int j = i + 1; j < m; j++) {
                 if (interests[minIndex] < interests[j]) {
                     minIndex = j;
                 }
@@ -232,11 +247,11 @@ public class UserDB {
             names[i] = tempName;
         }
 
-        for(int i = 0; i < 2; i++){
+        for(int i = 0; i < Math.min(2, m); i++){
             System.out.printf("%s | %.2f | %.2f\n", names[i], amounts[i], interests[i]);
         }
         Writer w = new Writer();
-        w.writeReport2(names, amounts, interests, n);
+        w.writeReport2(names, amounts, interests, m);
     }
 
     public void generateReport3(){
@@ -244,7 +259,7 @@ public class UserDB {
 
        for(int i = 0; i < getTransactions().size(); i++){
            Transaction t = getTransactions().get(i);
-           String entry = t.getAccountName() + " : " + t.getDate().toString();
+           String entry = t.getAccountName() + ":" + t.getDate().toString();
            if(!(balances.containsKey(entry))){
                 if(t.getType().equals("deposit")){
                     balances.put(entry, new double[]{t.getAmount(), 0, 1});
@@ -281,12 +296,10 @@ public class UserDB {
            if(withdrawalAmount >= 500000 || turnoverVelocity >= 90){
                double[] a = {depositAmount, withdrawalAmount, count, 1, turnoverVelocity};
                balances.put(entry, a);
-               //System.out.printf("%s : %f | %f | %f | %f\n", entry, balances.get(entry)[0], balances.get(entry)[1], balances.get(entry)[2], balances.get(entry)[3] );
            }
            else{
                double[] a = {depositAmount, withdrawalAmount, count, 0, turnoverVelocity};
                balances.put(entry, a);
-               //System.out.printf("%s : %f | %f | %f | %f\n", entry, balances.get(entry)[0], balances.get(entry)[1], balances.get(entry)[2], balances.get(entry)[3] );
            }
        }
 
@@ -304,19 +317,53 @@ public class UserDB {
            else{
                risk = "normal";
            }
-           sortedBalances.add(new String[]{name, date, String.valueOf(amount[1]), count, String.valueOf(amount[0]), turnover, risk});
+           sortedBalances.add(new String[]{name, date, String.format("%.2f", amount[1]), count, String.format("%.2f", amount[0]), turnover, risk});
        });
-       sortedBalances.sort(Comparator.comparing(row -> row[0]));
-       sortedBalances.sort(Comparator.comparing(row -> row[1]));
-       sortedBalances.sort(Comparator.comparing(row -> row[6], Comparator.reverseOrder()));
+        sortedBalances.sort(Comparator
+                .comparing((String[] r) -> r[1])
+                .thenComparing(r -> r[6], Comparator.reverseOrder())
+                .thenComparing(r -> r[0]));
 
 
-        for(int i = 0; i < 2; i++){
+        for(int i = 0; i < Math.min(2, sortedBalances.size()); i++){
             String[] sample = sortedBalances.get(i);
             System.out.printf("%s | %s | %s | %s | %s | %s | %s\n", sample[0], sample[1], sample[2], sample[3], sample[4], sample[5], sample[6]);
         }
        Writer w = new Writer();
        w.writeReport3(sortedBalances);
+    }
+
+    public void generateReport4(){
+        TreeMap<YearMonth, Double> monthlyBalances = new TreeMap<>();
+        YearMonth earliestMonth = YearMonth.from(getTransactions().get(0).getDate());
+        double totalDeposit = 0;
+        int depCount = 0;
+
+        for(int i = 0; i < getTransactions().size(); i++){
+            Transaction t = getTransactions().get(i);
+            YearMonth currentMonth = YearMonth.from(t.getDate());
+
+            if(currentMonth.isAfter(earliestMonth)){
+                monthlyBalances.put(earliestMonth, totalDeposit/depCount);
+                earliestMonth = currentMonth;
+                totalDeposit = 0;
+                depCount = 0;
+            }
+            if(t.getType().equals("deposit")){
+                totalDeposit += t.getAmount();
+                depCount++;
+                //System.out.println(totalDeposit);
+            }
+
+        }
+        monthlyBalances.put(earliestMonth, totalDeposit/depCount);
+
+        monthlyBalances.forEach((key, v) -> {
+            System.out.printf("%s | %.2f\n", key, v);
+        });
+
+        Writer w = new Writer();
+        w.writeReport4(monthlyBalances);
     }
 
     public void generateSummary(){
@@ -337,13 +384,13 @@ public class UserDB {
         double totalInterest =((dep-withdrawal) * (0.05/365))*30;
         String json = """
         {
-            "total_accounts": "%d",
+            "total_accounts": %d,
             "total_deposits": %.2f,
             "total_withdrawals": %.2f,
             "total_balance": %.2f,
             "total_interest_expense": %.2f
         }
-        """.formatted(count, dep, withdrawal, (dep - withdrawal), totalInterest);
+        """.formatted(getUsers().size(), dep, withdrawal, (dep - withdrawal), totalInterest);
 
         System.out.println(json);
         Writer w = new Writer();

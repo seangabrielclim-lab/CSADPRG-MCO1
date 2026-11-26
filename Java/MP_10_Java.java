@@ -13,6 +13,10 @@ import java.time.LocalDate;
 public class MP_10_Java {
     private static Scanner sc = new Scanner(System.in);
 
+    private static boolean isValidName(String name) {
+        return name.matches("[A-Za-z][A-Za-z.'-]*( [A-Za-z][A-Za-z.'-]*)+");
+    }
+
     public static void main(String[] args) {
         //intialization and state variables
         boolean exited = false;
@@ -31,6 +35,7 @@ public class MP_10_Java {
         Currencies.put(6, test.subList(10, 12)); // cny
 
         //userDB.loadUsers();
+
 
         //main loop
         while (!exited) {
@@ -68,10 +73,14 @@ public class MP_10_Java {
                 case 1:
                     boolean done1 = false;
                     while (!done1) {
+                        if(userDB.getUsers().isEmpty()) {userDB.loadUsers();}
                         System.out.println("Register Account Name");
                         System.out.print("Account Name: ");
                         String name = sc.nextLine();
-                        //gonna need to fix account validation
+                        if (!isValidName(name)) {
+                            System.out.println("Invalid name. Enter your first name and last name (e.g. Juan Dela Cruz).");
+                            continue;
+                        }
                         User check = userDB.findUserByName(name);
                         if (check == null) {
                             boolean valInitAmount = false;
@@ -79,7 +88,7 @@ public class MP_10_Java {
                                 try{
                                     System.out.print("Initial Deposit: ");
                                     double deposit = sc.nextDouble();
-                                    if (!(deposit > 0) || Double.isInfinite(deposit)) {
+                                    if (!(deposit >= 5000) || Double.isInfinite(deposit)) {
                                         throw new IllegalArgumentException("*** Error Invalid Input ***");
                                     }else{
                                         sc.nextLine();
@@ -88,7 +97,7 @@ public class MP_10_Java {
                                         valInitAmount = true;
                                     }
                                 }catch(InputMismatchException | IllegalArgumentException e){
-                                    System.out.println("Invalid amount. Enter a number greater than 0.");
+                                    System.out.println("Invalid amount. Enter a number at least 5000.");
                                     sc.nextLine();
                                 }
                             }
@@ -108,7 +117,7 @@ public class MP_10_Java {
                     while (!done2) {
                         //checking if there are no users
                         if(userDB.getUsers().isEmpty()) {
-                            System.out.println("No account registered yet. Please register an account name first.");
+                            userDB.loadUsers();
                             done2 = true;
                         } else{
                             //while loop for checking if user exists
@@ -164,7 +173,7 @@ public class MP_10_Java {
                                         sc.nextLine();
                                         double n = (double)Currencies.get(depCurrency).get(0);
                                         deposit = deposit*n;
-                                        userDB.depositFunds(d, deposit, (String)Currencies.get(depCurrency).get(1));
+                                        userDB.depositFunds(d, deposit, "PHP");
                                         System.out.printf("Equivalent in PHP (rate %.2f): %.2f\n", n, deposit);
                                         System.out.printf("Updated Balance: %.2f\n\n", d.getAmount());
                                         valDepAmount = true;
@@ -186,7 +195,7 @@ public class MP_10_Java {
                     boolean done3 = false;
                     while (!done3) {
                         if(userDB.getUsers().isEmpty()){
-                            System.out.println("No account registered yet. Please register an account name first.");
+                            userDB.loadUsers();
                             done3 = true;
                         } else {
                             //while loop for checking if user exists
@@ -246,7 +255,7 @@ public class MP_10_Java {
                                     }
                                     else{
                                         sc.nextLine();
-                                        userDB.withdrawFunds(w, withdraw, (String)Currencies.get(withCurrency).get(1));
+                                        userDB.withdrawFunds(w, withdraw, "PHP");
                                         System.out.printf("Equivalent in PHP (rate %.2f): %.2f\n", m, withdraw);
                                         System.out.printf("Updated Amount: %.2f\n\n", w.getAmount());
                                         valWitAmount = true;
@@ -417,7 +426,7 @@ public class MP_10_Java {
                     boolean done6 = false;
                     while (!done6) {
                         if (userDB.getUsers().isEmpty()) {
-                            System.out.println("No account registered yet. Please register an account name first.");
+                            userDB.loadUsers();
                             done6 = true;
                         }
                         else{
@@ -478,21 +487,25 @@ public class MP_10_Java {
                             }
                             else if(reportChoice == 1) {
                                 userDB.loadUsers();
-                                userDB.displayUsers();
-                                System.out.println("Processing dataset... (" + userDB.getTransactions().size() + " rows loaded, " + userDB.getTransactions().size() + " filtered for PHP currency)");
                                 done7 = true;
                             }
                             else if(reportChoice == 2) {
-                                userDB.generateReport1();
+                                if(userDB.getTransactions().isEmpty()){
+                                    System.out.println("No transactions have been made yet. Unable to generate reports");
+                                    sc.nextLine();
+                                    break;
+                                }
+
                                 System.out.println("\nGenerating reports...");
+                                int n = userDB.generateReport1();
                                 System.out.println("Outputs saved to individual files...");
 
                                 System.out.println("\nReport 1: Banking Privilege Tiers");
-                                for (int i = 0 ; i < 2; i++) {
+                                for (int i = 0; i < Math.min(2, n); i++) {
                                     User u = userDB.getUsers().get(i);
-                                    System.out.println(u.getName() + " | " + u.getAccountAge() + " | " + u.getAmount() + " | " + u.getAdb() + " | " + u.getTier());
+                                    System.out.printf("%s | %d | %.2f | %.2f | %s%n",
+                                            u.getName(), u.getAccountAge(), u.getAmount(), u.getAdb(), u.getTier());
                                 }
-                                System.out.println("Outputs saved to individual files...");
                                 System.out.println("\n(Full table exported to report1_banking_privilege_tiers.csv)");
 
                                 System.out.println("\nReport 2: Interest Expense Projection");
@@ -502,6 +515,10 @@ public class MP_10_Java {
                                 System.out.println("\nReport 3: Suspicious Client Behavior");
                                 userDB.generateReport3();
                                 System.out.println("\n(Full table exported to report3_suspicious_client_behavior.csv)");
+
+                                System.out.println("\nReport 4: Average Monthly Deposits");
+                                userDB.generateReport4();
+                                System.out.println("\n(Full table exported to report4_average_deposits_per_month.csv)");
 
                                 System.out.println("\nSummary State (summary.json):");
                                 userDB.generateSummary();
