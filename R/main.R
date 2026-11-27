@@ -93,13 +93,14 @@ get_privilege_tiers <- function(df){
     data_frame <- df %>%
         group_by(account_name, account_number) %>%
         summarize(first_day = min(date), current_balance = last(end_of_day_balance),
-                    average_daily_balance = sum(end_of_day_balance[date >= start_last_month & date <= end_last_month]) / days_in_month,
+                    AverageDailyBalance = sum(end_of_day_balance[date >= start_last_month & date <= end_last_month]) / days_in_month,
                     .groups = "drop") %>%
-        filter(average_daily_balance >= 100000.00) %>%
-        mutate(account_age = as.numeric(latest_date - first_day),
-                privilege_tier = case_when(average_daily_balance < 500000.00 ~ "Silver", average_daily_balance < 1000000.00 ~ "Gold", .default = "Platinum")) %>%
-        arrange(desc(average_daily_balance)) %>%
-        select(account_name, account_age, current_balance, average_daily_balance, privilege_tier)
+        filter(AverageDailyBalance >= 100000.00) %>%
+        mutate(AccountName = account_name, CurrentBalance = current_balance,
+                AccountAge = as.numeric(latest_date - first_day),
+                PrivilegeTier = case_when(AverageDailyBalance < 500000.00 ~ "Silver", AverageDailyBalance < 1000000.00 ~ "Gold", .default = "Platinum")) %>%
+        arrange(desc(AverageDailyBalance)) %>%
+        select(AccountName, AccountAge, CurrentBalance, AverageDailyBalance, PrivilegeTier)
 
     return (data_frame)
 }
@@ -112,9 +113,10 @@ get_interest_report <- function(df){
         ungroup() %>%
 
         filter(current_balance >= 10000.00) %>%
-        mutate(expected_interest = current_balance * ((1 + 0.05/365) ^ 30 - 1)) %>%
-        arrange(desc(expected_interest)) %>%
-        select(account_name, current_balance, expected_interest)
+        mutate(ExpectedInterest = current_balance * ((1 + 0.05/365) ^ 30 - 1)) %>%
+        arrange(desc(ExpectedInterest)) %>%
+        mutate(AccountName = account_name, CurrentBalance = current_balance) %>%
+        select(AccountName, CurrentBalance, ExpectedInterest)
     
     return (data_frame)
 }
@@ -122,41 +124,50 @@ get_interest_report <- function(df){
 get_suspicious_report <- function(df){
     data_frame <- df %>%
         group_by(account_name, account_number, date) %>%
-        summarize(total_withdrawal_amounts = sum(amount[type == "withdrawal"]), 
-                    number_of_deposits = sum(type == "deposit"), 
-                    total_deposit_amounts = (sum(amount[type == "deposit"])),
+        summarize(TotalWithdrawalAmounts = sum(amount[type == "withdrawal"]), 
+                    NumberOfDeposits = sum(type == "deposit"), 
+                    TotalDepositAmounts = (sum(amount[type == "deposit"])),
                     .groups = "drop") %>%
-        mutate(turnover_velocity = ifelse(total_deposit_amounts == 0, 0, (total_withdrawal_amounts / total_deposit_amounts) * 100), 
-                risk_flag_level = ifelse(turnover_velocity >= 90 | total_withdrawal_amounts >= 500000.00, "Suspicious", "Normal")) %>%
-        arrange(desc(risk_flag_level), date, account_number) %>%
-        select(account_name, date, total_withdrawal_amounts, number_of_deposits, total_deposit_amounts, turnover_velocity, risk_flag_level)
+        mutate(TurnoverVelocity = ifelse(TotalDepositAmounts == 0, 0, (TotalWithdrawalAmounts / TotalDepositAmounts) * 100), 
+                RiskFlagLevel = ifelse(TurnoverVelocity >= 90 | TotalWithdrawalAmounts >= 500000.00, "Suspicious", "Normal")) %>%
+        arrange(date, desc(RiskFlagLevel)) %>%
+        mutate(AccountName = account_name, Date = date) %>%
+        select(AccountName, Date, TotalWithdrawalAmounts, NumberOfDeposits, TotalDepositAmounts, TurnoverVelocity, RiskFlagLevel)
     
     return (data_frame)
 }
 
+format_numeric <- function(value){
+    return (sprintf("%.2f", value))
+}
 
 
 # ----------- MAIN LOGIC ----------
 data_frame <- clean_data(load_data("bank_transactions.csv"))
-head(data_frame)
 
-range(data_frame$date, na.rm = TRUE)
-
-cat("----------------------\n")
+cat("---------- REPORT 1 ------------\n")
 
 daily_balances <- get_daily_balances(data_frame)
 priv_tiers <- get_privilege_tiers(daily_balances)
-head(priv_tiers)
 
-# cat("----------------------\n")
-# interest_report <- get_interest_report(data_frame)
-# head(interest_report)
-# nrow(interest_report)
+report1 <- priv_tiers %>%
+    mutate(CurrentBalance = format_numeric(CurrentBalance), AverageDailyBalance = format_numeric(AverageDailyBalance))
 
-# cat("----------------------\n")
-# suspicious_report <- get_suspicious_report(data_frame)
-# head(suspicious_report)
-# nrow(suspicious_report)
+write_csv(report1, "R_report1_banking_privilege_tiers.csv")
 
-# write_csv(suspicious_report, "report3.csv")
-# n_distinct(data_frame$account_name, na.rm = TRUE)
+cat("---------- REPORT 2 ------------\n")
+interest_report <- get_interest_report(data_frame)
+
+report2 <- interest_report %>%
+    mutate(CurrentBalance = format_numeric(CurrentBalance), ExpectedInterest = format_numeric(ExpectedInterest))
+
+write_csv(report2, "R_report2_interest_expense_projection.csv")
+
+cat("---------- REPORT 3 ------------\n")
+suspicious_report <- get_suspicious_report(data_frame)
+
+report3 <- suspicious_report %>%
+    mutate(TotalWithdrawalAmounts = format_numeric(TotalWithdrawalAmounts), TotalDepositAmounts = format_numeric(TotalDepositAmounts),
+            TurnoverVelocity = format_numeric(TurnoverVelocity))
+
+write_csv(report3, "R_report3_suspicious_client_behavior.csv")
