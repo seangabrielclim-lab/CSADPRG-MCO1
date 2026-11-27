@@ -11,7 +11,6 @@ How to compile and run (bank_transactions.csv must be in the same folder):
   gcc -std=c99 -o mco2 mco2_banking.c
 
 Files created by Generate Reports:
-  data_validation_log.txt                   - rows that were removed, imputed or corrected
   report1_banking_privilege_tiers.csv       - Report 1
   report2_interest_expense_projection.csv   - Report 2
   report3_suspicious_client_behavior.csv    - Report 3
@@ -28,7 +27,6 @@ Files created by Generate Reports:
 
 // Files
 #define DATA_FILE     "bank_transactions.csv"
-#define LOG_FILE      "data_validation_log.txt"
 #define REPORT1_FILE  "report1_banking_privilege_tiers.csv"
 #define REPORT2_FILE  "report2_interest_expense_projection.csv"
 #define REPORT3_FILE  "report3_suspicious_client_behavior.csv"
@@ -499,12 +497,12 @@ void storeTransaction(int accIndex, int day, int month, int year, double amount,
 // Reads, validates and cleans the CSV file. Returns 1 if the file was opened.
 int loadData(int showLog)
 {
-    FILE *fp, *log;
+    FILE *fp;
     char line[MAX_LINE];
     char fields[NUM_COLUMNS + 2][MAX_FIELD_LEN];
     CsvRow row;
     const char *error;
-    int lineNum = 1, totalRows = 0, phpRows = 0, otherCurrency = 0, errorRows = 0, imputed = 0, corrected = 0;
+    int totalRows = 0, phpRows = 0, otherCurrency = 0, errorRows = 0, imputed = 0, corrected = 0;
     int count, accIndex;
     double expected, difference;
 
@@ -519,22 +517,13 @@ int loadData(int showLog)
         return 0;
     }
 
-    log = NULL;
-    if (showLog)
-        log = fopen(LOG_FILE, "w");
-    if (log != NULL)
-        fprintf(log, "Data validation log for %s\n", DATA_FILE);
-
     // the first line is the header
     if (fgets(line, MAX_LINE, fp) == NULL) {
         fclose(fp);
-        if (log != NULL)
-            fclose(log);
         return 1;
     }
 
     while (fgets(line, MAX_LINE, fp) != NULL) {
-        lineNum++;
         trimText(line);
         if (line[0] == '\0')
             continue;
@@ -550,8 +539,6 @@ int loadData(int showLog)
 
         if (error != NULL) {
             errorRows++;
-            if (log != NULL)
-                fprintf(log, "Line %d removed (%s): %s\n", lineNum, error, line);
             continue;
         }
 
@@ -576,17 +563,12 @@ int loadData(int showLog)
             // impute a missing balance
             row.balance = expected;
             imputed++;
-            if (log != NULL)
-                fprintf(log, "Line %d: missing current_balance imputed as %.2f\n", lineNum, row.balance);
         } else {
             // correct a balance that does not add up (more than 1 centavo off)
             difference = row.balance - expected;
             if (difference < 0)
                 difference = -difference;
             if (difference > 0.01) {
-                if (log != NULL)
-                    fprintf(log, "Line %d: current_balance %.2f does not match expected %.2f, corrected\n",
-                            lineNum, row.balance, expected);
                 row.balance = expected;
                 corrected++;
             }
@@ -597,21 +579,14 @@ int loadData(int showLog)
     }
     fclose(fp);
 
-    if (log != NULL) {
-        fprintf(log, "Total rows: %d\nValid PHP rows: %d\nNon-PHP rows excluded: %d\n", totalRows, phpRows, otherCurrency);
-        fprintf(log, "Rows removed for errors: %d\nRows with imputed balance: %d\n", errorRows, imputed);
-        fprintf(log, "Rows with corrected balance: %d\n", corrected);
-        fclose(log);
-    }
-
     if (showLog) {
         printf("Processing dataset... (");
         printCount(totalRows);
         printf(" rows loaded, ");
         printCount(phpRows);
         printf(" filtered for PHP currency)\n");
-        printf("Validation: %d rows with errors removed, %d rows imputed, %d balances corrected, %d non-PHP rows excluded (see %s)\n",
-               errorRows, imputed, corrected, otherCurrency, LOG_FILE);
+        printf("Validation: %d rows with errors removed, %d rows imputed, %d balances corrected, %d non-PHP rows excluded\n",
+               errorRows, imputed, corrected, otherCurrency);
     }
     return 1;
 }
