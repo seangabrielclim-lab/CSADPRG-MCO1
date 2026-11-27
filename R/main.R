@@ -130,9 +130,23 @@ get_suspicious_report <- function(df){
                     .groups = "drop") %>%
         mutate(TurnoverVelocity = ifelse(TotalDepositAmounts == 0, 0, (TotalWithdrawalAmounts / TotalDepositAmounts) * 100), 
                 RiskFlagLevel = ifelse(TurnoverVelocity >= 90 | TotalWithdrawalAmounts >= 500000.00, "Suspicious", "Normal")) %>%
-        arrange(date, desc(RiskFlagLevel)) %>%
+        arrange(date, desc(RiskFlagLevel), account_name) %>%
         mutate(AccountName = account_name, Date = date) %>%
         select(AccountName, Date, TotalWithdrawalAmounts, NumberOfDeposits, TotalDepositAmounts, TurnoverVelocity, RiskFlagLevel)
+    
+    return (data_frame)
+}
+
+get_statistical_report <- function(df){
+    data_frame <- df %>%
+        group_by(account_name, account_number) %>%
+        summarize(MeanBalance = mean(end_of_day_balance), MedianBalance = median(end_of_day_balance),
+                    AccountStandardDev = ifelse(n() > 1, sd(end_of_day_balance), 0),
+                    .groups = "drop") %>%
+        mutate(StabilityLevel = ifelse(MeanBalance == 0, 0, (AccountStandardDev / MeanBalance) * 100),
+                StabilityProfile = case_when(StabilityLevel >= 75 ~ "Unstable", StabilityLevel >= 25 ~ "Moderate", .default = "Stable")) %>%
+        arrange(desc(StabilityLevel), account_number) %>%
+        select(AccountName = account_name, AccountNumber = account_number, MedianBalance, AccountStandardDev, StabilityLevel, StabilityProfile)
     
     return (data_frame)
 }
@@ -145,29 +159,38 @@ format_numeric <- function(value){
 # ----------- MAIN LOGIC ----------
 data_frame <- clean_data(load_data("bank_transactions.csv"))
 
-cat("---------- REPORT 1 ------------\n")
+# cat("---------- REPORT 1 ------------\n")
 
 daily_balances <- get_daily_balances(data_frame)
-priv_tiers <- get_privilege_tiers(daily_balances)
+# priv_tiers <- get_privilege_tiers(daily_balances)
 
-report1 <- priv_tiers %>%
-    mutate(CurrentBalance = format_numeric(CurrentBalance), AverageDailyBalance = format_numeric(AverageDailyBalance))
+# report1 <- priv_tiers %>%
+#     mutate(CurrentBalance = format_numeric(CurrentBalance), AverageDailyBalance = format_numeric(AverageDailyBalance))
 
-write_csv(report1, "R_report1_banking_privilege_tiers.csv")
+# write_csv(report1, "R_report1_banking_privilege_tiers.csv")
 
-cat("---------- REPORT 2 ------------\n")
-interest_report <- get_interest_report(data_frame)
+# cat("---------- REPORT 2 ------------\n")
+# interest_report <- get_interest_report(data_frame)
 
-report2 <- interest_report %>%
-    mutate(CurrentBalance = format_numeric(CurrentBalance), ExpectedInterest = format_numeric(ExpectedInterest))
+# report2 <- interest_report %>%
+#     mutate(CurrentBalance = format_numeric(CurrentBalance), ExpectedInterest = format_numeric(ExpectedInterest))
 
-write_csv(report2, "R_report2_interest_expense_projection.csv")
+# write_csv(report2, "R_report2_interest_expense_projection.csv")
 
-cat("---------- REPORT 3 ------------\n")
-suspicious_report <- get_suspicious_report(data_frame)
+# cat("---------- REPORT 3 ------------\n")
+# suspicious_report <- get_suspicious_report(data_frame)
 
-report3 <- suspicious_report %>%
-    mutate(TotalWithdrawalAmounts = format_numeric(TotalWithdrawalAmounts), TotalDepositAmounts = format_numeric(TotalDepositAmounts),
-            TurnoverVelocity = format_numeric(TurnoverVelocity))
+# report3 <- suspicious_report %>%
+#     mutate(TotalWithdrawalAmounts = format_numeric(TotalWithdrawalAmounts), TotalDepositAmounts = format_numeric(TotalDepositAmounts),
+#             TurnoverVelocity = format_numeric(TurnoverVelocity))
 
-write_csv(report3, "R_report3_suspicious_client_behavior.csv")
+# write_csv(report3, "R_report3_suspicious_client_behavior.csv")
+
+# cat("---------- REPORT 4 ------------\n")
+
+stats_report <- get_statistical_report(daily_balances)
+report4 <- stats_report %>%
+    mutate(MedianBalance = format_numeric(MedianBalance), AccountStandardDev = format_numeric(AccountStandardDev), 
+            StabilityLevel = format_numeric(StabilityLevel))
+
+write_csv(report4, "report4_stats_report_on_account.csv")
