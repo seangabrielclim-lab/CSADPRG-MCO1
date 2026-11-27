@@ -2,6 +2,7 @@
 ********************
 Last names: Chan, Cheng, Jugno, Lim
 Language: C
+Paradigm: Procedural
 ********************
 
 MCO2: Banking Deposit and Withdrawal Reports
@@ -1025,14 +1026,30 @@ int compareTransByDayAccount(const void *a, const void *b)
     return *(const int *) a - *(const int *) b;
 }
 
-// Ascending by date, Suspicious before Normal, then account number
+// Compares two names alphabetically, ignoring uppercase/lowercase (negative if a comes first)
+int compareNames(const char *a, const char *b)
+{
+    while (*a && tolower(*a) == tolower(*b)) {
+        a++;
+        b++;
+    }
+    return tolower(*a) - tolower(*b);
+}
+
+// Ascending by date, Suspicious before Normal, then account name A to Z
 int compareDayStat(const void *a, const void *b)
 {
     const DayStat *x = a, *y = b;
+    int byName;
+
     if (x->dayNum != y->dayNum)
         return x->dayNum - y->dayNum;
     if (x->suspicious != y->suspicious)
         return y->suspicious - x->suspicious;
+
+    byName = compareNames(accounts[x->accIndex].name, accounts[y->accIndex].name);
+    if (byName != 0)
+        return byName;
     return accounts[x->accIndex].number - accounts[y->accIndex].number;
 }
 
