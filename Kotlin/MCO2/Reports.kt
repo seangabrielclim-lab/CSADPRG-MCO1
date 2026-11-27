@@ -128,6 +128,7 @@ fun report3(transactions: List<Transaction>): List<Report3Row> {
         rows.add(Report3Row(d.name, d.date, d.withdrawals, d.depositCount, d.deposits, velocity, flag))
     }
     // sort by date (ascending) then risk flag (descending)
+    rows.sortBy { it.name }
     rows.sortByDescending { it.flag }
     rows.sortBy { it.date }
     return rows
