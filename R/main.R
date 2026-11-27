@@ -83,6 +83,27 @@ get_daily_balances <- function(df){
     return (data_frame)
 }
 
+get_privilege_tiers <- function(df){
+    latest_date <- max(df$date)
+    start_this_month <- as.Date(format(latest_date, "%Y-%m-01"))
+    start_last_month <- seq(start_this_month, by = "-1 month", length.out = 2)[2]
+    end_last_month <- start_this_month - 1
+    days_in_month <- as.numeric(end_last_month - start_last_month) + 1
+
+    data_frame <- df %>%
+        group_by(account_name, account_number) %>%
+        summarize(first_day = min(date), current_balance = last(end_of_day_balance),
+                    average_daily_balance = sum(end_of_day_balance[date >= start_last_month & date <= end_last_month]) / days_in_month,
+                    .groups = "drop") %>%
+        filter(average_daily_balance >= 100000.00) %>%
+        mutate(account_age = as.numeric(latest_date - first_day),
+                privilege_tier = case_when(average_daily_balance < 500000.00 ~ "Silver", average_daily_balance < 1000000.00 ~ "Gold", .default = "Platinum")) %>%
+        arrange(desc(average_daily_balance)) %>%
+        select(account_name, account_age, current_balance, average_daily_balance, privilege_tier)
+
+    return (data_frame)
+}
+
 get_interest_report <- function(df){
 
     data_frame <- df %>%
@@ -124,19 +145,18 @@ range(data_frame$date, na.rm = TRUE)
 cat("----------------------\n")
 
 daily_balances <- get_daily_balances(data_frame)
-head(daily_balances)
-nrow(daily_balances)
-sum(is.na(daily_balances$account_name))
+priv_tiers <- get_privilege_tiers(daily_balances)
+head(priv_tiers)
 
-cat("----------------------\n")
-interest_report <- get_interest_report(data_frame)
-head(interest_report)
-nrow(interest_report)
+# cat("----------------------\n")
+# interest_report <- get_interest_report(data_frame)
+# head(interest_report)
+# nrow(interest_report)
 
-cat("----------------------\n")
-suspicious_report <- get_suspicious_report(data_frame)
-head(suspicious_report)
-nrow(suspicious_report)
+# cat("----------------------\n")
+# suspicious_report <- get_suspicious_report(data_frame)
+# head(suspicious_report)
+# nrow(suspicious_report)
 
-write_csv(suspicious_report, "report3.csv")
+# write_csv(suspicious_report, "report3.csv")
 # n_distinct(data_frame$account_name, na.rm = TRUE)
