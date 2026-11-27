@@ -1,6 +1,7 @@
 suppressPackageStartupMessages({
     library(dplyr)
     library(readr)
+    library(jsonlite)
 })
 options(pillar.width = Inf, pillar.sigfig = 12)
 
@@ -151,6 +152,23 @@ get_statistical_report <- function(df){
     return (data_frame)
 }
 
+generate_summary <- function(df, interest_report){
+    account_totals <- df %>%
+        summarize(total_accounts = n_distinct(account_number, na.rm = TRUE), total_deposits = sum(amount[type == "deposit"], na.rm = TRUE),
+                    total_withdrawals = sum(amount[type == "withdrawal"], na.rm = TRUE))
+    
+    bal_total <- df %>%
+        group_by(account_number) %>%
+        slice_tail(n = 1) %>%
+        ungroup() %>%
+        summarize(total_balance = sum(current_balance, na.rm = TRUE), .groups = "drop")
+
+    interest_df <- interest_report %>%
+        summarize(total_interest_expense = sum(ExpectedInterest, na.rm = TRUE))
+
+    bind_cols(account_totals, bal_total, interest_df)
+}
+
 format_numeric <- function(value){
     return (sprintf("%.2f", value))
 }
@@ -170,7 +188,8 @@ daily_balances <- get_daily_balances(data_frame)
 # write_csv(report1, "R_report1_banking_privilege_tiers.csv")
 
 # cat("---------- REPORT 2 ------------\n")
-# interest_report <- get_interest_report(data_frame)
+interest_report <- get_interest_report(data_frame)
+head(interest_report)
 
 # report2 <- interest_report %>%
 #     mutate(CurrentBalance = format_numeric(CurrentBalance), ExpectedInterest = format_numeric(ExpectedInterest))
@@ -188,9 +207,17 @@ daily_balances <- get_daily_balances(data_frame)
 
 # cat("---------- REPORT 4 ------------\n")
 
-stats_report <- get_statistical_report(daily_balances)
-report4 <- stats_report %>%
-    mutate(MedianBalance = format_numeric(MedianBalance), AccountStandardDev = format_numeric(AccountStandardDev), 
-            StabilityLevel = format_numeric(StabilityLevel))
+# stats_report <- get_statistical_report(daily_balances)
+# report4 <- stats_report %>%
+#     mutate(MedianBalance = format_numeric(MedianBalance), AccountStandardDev = format_numeric(AccountStandardDev), 
+#             StabilityLevel = format_numeric(StabilityLevel))
 
-write_csv(report4, "report4_stats_report_on_account.csv")
+# write_csv(report4, "report4_stats_report_on_account.csv")
+
+# cat("---------- Summary ------------\n")
+
+summary <- generate_summary(data_frame, interest_report)
+summary <- summary %>%
+    mutate(total_deposits = round(total_deposits, 2), total_withdrawals = round(total_withdrawals, 2), 
+            total_balance = round(total_balance, 2), total_interest_expense = round(total_interest_expense, 2))
+write_json(as.list(summary), path = "R_summary.json", pretty = TRUE, auto_unbox = TRUE)
