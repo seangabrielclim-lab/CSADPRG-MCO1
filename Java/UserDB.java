@@ -321,7 +321,8 @@ public class UserDB {
        });
         sortedBalances.sort(Comparator
                 .comparing((String[] r) -> r[1])
-                .thenComparing(r -> r[6], Comparator.reverseOrder()));
+                .thenComparing(r -> r[6], Comparator.reverseOrder())
+                .thenComparing(r -> r[0]));
 
 
         for(int i = 0; i < Math.min(2, sortedBalances.size()); i++){
