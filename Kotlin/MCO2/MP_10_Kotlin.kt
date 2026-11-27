@@ -20,47 +20,51 @@ fun printMainMenu(){
 
 // Sub-menus
 fun registerAccount(db: UserDB){
-    var doneRegistering = false
-    while (!doneRegistering) {
-        println("Register Account Name")
-        print("Account Name: ")
-        val name = readln().trim()
-        if (!isValidName(name)) {
-            println("\nName must only contain letters and in the format of '<First name> <Last Name>'\n") // ERROR!!!
+    do {
+        var doneRegistering = false
+        while (!doneRegistering) {
+            println("\nRegister Account Name")
+            print("Account Name: ")
+            val name = readln().trim()
+            if (!isValidName(name)) {
+                println("\nName must only contain letters and in the format of '<First name> <Last Name>'\n") // ERROR!!!
+            }
+            else if (db.findUserByName(name) != null) {
+                println("\nAn account with this name is already registered.\n") // ERROR!!!
+            }
+            else {
+                val initial = getAmt("Initial Deposit: ", MIN_INIT_DEPOSIT)
+                val user = db.registerUser(name, initial)
+                println("Account created successfully!")
+                doneRegistering = true
+            }
         }
-        else if (db.findUserByName(name) != null) {
-            println("\nAn account with this name is already registered.\n") // ERROR!!!
-        }
-        else {
-            val initial = getAmt("Initial Deposit: ", MIN_INIT_DEPOSIT)
-            val user = db.registerUser(name, initial)
-            println("Account created successfully! Account Number: ${user.accountNumber}")
-            doneRegistering = true
-        }
-    }
-    return
+        println()
+    } while (yesNo("Register another account? (Y/N): "))
 }
 
 fun deposit(db: UserDB, rates: ExchangeRateSet){
-    val user = getUser("Deposit Amount", db)
-    printAccountInfo(user)
-    println()
-    println("[1] Philippine Peso (PHP)")
-    println("[2] United States Dollar (USD)")
-    println("[3] Japanese Yen (JPY)")
-    println("[4] British Pound Sterling (GBP)")
-    println("[5] Euro (EUR)")
-    println("[6] Chinese Yuan Renminni (CNY)\n")
-    val depositCurr = getChoice("Transaction Currency: ")
-    var amount = getAmt("Deposit Amount: ")
-    amount = rates.convertCurrency(depositCurr, 1, amount)
-    println()
-    if (depositCurr != 1) println("Equivalent in PHP: ${"%.2f".format(amount)} (Rate = ${"%.2f".format(rates.getRate(depositCurr))})")
-    db.deposit(user, amount)
-    println("Updated Balance: ${"%.2f".format(user.balance)}")
+    do {
+        val user = getUser("\nDeposit Amount", db)
+        printAccountInfo(user)
+        println()
+        println("[1] Philippine Peso (PHP)")
+        println("[2] United States Dollar (USD)")
+        println("[3] Japanese Yen (JPY)")
+        println("[4] British Pound Sterling (GBP)")
+        println("[5] Euro (EUR)")
+        println("[6] Chinese Yuan Renminni (CNY)\n")
+        val depositCurr = getChoice("Transaction Currency: ")
+        var amount = getAmt("Deposit Amount: ")
+        amount = rates.convertCurrency(depositCurr, 1, amount)
+        println()
+        if (depositCurr != 1) println("Equivalent in PHP: ${"%.2f".format(amount)} (Rate = ${"%.2f".format(rates.getRate(depositCurr))})")
+        db.deposit(user, amount)
+        println("Updated Balance: ${"%.2f".format(user.balance)}")
+    } while (yesNo("Deposit another amount? (Y/N): "))
 }
 fun withdraw(db: UserDB, rates: ExchangeRateSet){
-    val user = getUser("Withdraw Amount", db)
+    val user = getUser("\nWithdraw Amount", db)
     printAccountInfo(user)
     println()
     println("[1] Philippine Peso (PHP)")
