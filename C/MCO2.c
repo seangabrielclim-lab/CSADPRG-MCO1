@@ -809,7 +809,7 @@ void registerAccount(void)
         index = addAccount(name, number, 999999);
 
         if (recordTransaction(index, initial, 1, initial)) {
-            printf("Account created successfully! (Account Number: %010d)\n\n", number);
+            printf("Account created successfully!\n\n");
         } else {
             // remove the account again so it is not kept only in memory
             numAccounts--;
@@ -1380,8 +1380,8 @@ void writeSummary(double totalInterest)
         balance += accounts[i].balance;
 
     printf("Summary State (%s):\n", SUMMARY_FILE);
-    printf("{\"total_accounts\": %d, \"total_deposits\": %.2f, \"total_withdrawals\": %.2f, "
-           "\"total_balance\": %.2f, \"total_interest_expense\": %.2f}\n",
+    printf("{\n    \"total_accounts\": %d,\n    \"total_deposits\": %.2f,\n    \"total_withdrawals\": %.2f,\n"
+           "    \"total_balance\": %.2f,\n    \"total_interest_expense\": %.2f\n}\n",
            numAccounts, deposits, withdrawals, balance, totalInterest);
 
     fp = fopen(SUMMARY_FILE, "w");
@@ -1389,8 +1389,8 @@ void writeSummary(double totalInterest)
         printf("Could not create %s.\n", SUMMARY_FILE);
         return;
     }
-    fprintf(fp, "{\n  \"total_accounts\": %d,\n  \"total_deposits\": %.2f,\n  \"total_withdrawals\": %.2f,\n"
-                "  \"total_balance\": %.2f,\n  \"total_interest_expense\": %.2f\n}\n",
+    fprintf(fp, "{\n    \"total_accounts\": %d,\n    \"total_deposits\": %.2f,\n    \"total_withdrawals\": %.2f,\n"
+                "    \"total_balance\": %.2f,\n    \"total_interest_expense\": %.2f\n}\n",
             numAccounts, deposits, withdrawals, balance, totalInterest);
     fclose(fp);
 }
