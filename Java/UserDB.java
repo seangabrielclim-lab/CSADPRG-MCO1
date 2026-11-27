@@ -184,15 +184,15 @@ public class UserDB {
            u.setAdb(average);
 
            if(average >= 100000.00 && average < 500000.00){
-               getUsers().get(i).setTier("silver");
+               getUsers().get(i).setTier("Silver");
                n++;
            }
            else if(average >= 500000.00 && average < 1000000.00){
-               getUsers().get(i).setTier("gold");
+               getUsers().get(i).setTier("Gold");
                n++;
            }
            else if(average >= 1000000.00){
-               getUsers().get(i).setTier("platinum");
+               getUsers().get(i).setTier("Platinum");
                n++;
            }
            else{
@@ -312,17 +312,16 @@ public class UserDB {
            String turnover = String.format("%.2f", amount[4]);
            String risk = "";
            if(amount[3] > 0){
-               risk = "suspicious";
+               risk = "Suspicious";
            }
            else{
-               risk = "normal";
+               risk = "Normal";
            }
            sortedBalances.add(new String[]{name, date, String.format("%.2f", amount[1]), count, String.format("%.2f", amount[0]), turnover, risk});
        });
         sortedBalances.sort(Comparator
                 .comparing((String[] r) -> r[1])
-                .thenComparing(r -> r[6], Comparator.reverseOrder())
-                .thenComparing(r -> r[0]));
+                .thenComparing(r -> r[6], Comparator.reverseOrder()));
 
 
         for(int i = 0; i < Math.min(2, sortedBalances.size()); i++){
@@ -358,8 +357,13 @@ public class UserDB {
         }
         monthlyBalances.put(earliestMonth, totalDeposit/depCount);
 
+        
+        int[] displayed = {0};
         monthlyBalances.forEach((key, v) -> {
+            if (displayed[0] < 2) {
             System.out.printf("%s | %.2f\n", key, v);
+            displayed[0]++;
+            }
         });
 
         Writer w = new Writer();
@@ -381,7 +385,15 @@ public class UserDB {
             }
         }
 
-        double totalInterest =((dep-withdrawal) * (0.05/365))*30;
+        double totalInterest = 0;
+        for (User u : getUsers()) {
+            if (u.getAmount() >= 10000) {
+                double[] amts = new double[30];
+                interestFunds(u, 30, u.getRate(), amts);
+                totalInterest += amts[29] - u.getAmount();
+            }
+        }
+        
         String json = """
         {
             "total_accounts": %d,

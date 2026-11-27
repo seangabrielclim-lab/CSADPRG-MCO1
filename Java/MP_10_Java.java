@@ -7,8 +7,6 @@ Paradigm(s): Object-oriented
  */
 
 import java.util.*;
-import java.util.ArrayList;
-import java.time.LocalDate;
 
 public class MP_10_Java {
     private static Scanner sc = new Scanner(System.in);
